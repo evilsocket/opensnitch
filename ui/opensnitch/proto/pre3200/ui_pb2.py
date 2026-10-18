@@ -21,7 +21,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   package='protocol',
   syntax='proto3',
   serialized_options=_b('Z3github.com/evilsocket/opensnitch/daemon/ui/protocol'),
-  serialized_pb=_b('\n\x08ui.proto\x12\x08protocol\"\xcb\x04\n\x05\x41lert\x12\n\n\x02id\x18\x01 \x01(\x04\x12\"\n\x04type\x18\x02 \x01(\x0e\x32\x14.protocol.Alert.Type\x12&\n\x06\x61\x63tion\x18\x03 \x01(\x0e\x32\x16.protocol.Alert.Action\x12*\n\x08priority\x18\x04 \x01(\x0e\x32\x18.protocol.Alert.Priority\x12\"\n\x04what\x18\x05 \x01(\x0e\x32\x14.protocol.Alert.What\x12\x0e\n\x04text\x18\x06 \x01(\tH\x00\x12!\n\x04proc\x18\x08 \x01(\x0b\x32\x11.protocol.ProcessH\x00\x12$\n\x04\x63onn\x18\t \x01(\x0b\x32\x14.protocol.ConnectionH\x00\x12\x1e\n\x04rule\x18\n \x01(\x0b\x32\x0e.protocol.RuleH\x00\x12\"\n\x06\x66wrule\x18\x0b \x01(\x0b\x32\x10.protocol.FwRuleH\x00\")\n\x08Priority\x12\x07\n\x03LOW\x10\x00\x12\n\n\x06MEDIUM\x10\x01\x12\x08\n\x04HIGH\x10\x02\"(\n\x04Type\x12\t\n\x05\x45RROR\x10\x00\x12\x0b\n\x07WARNING\x10\x01\x12\x08\n\x04INFO\x10\x02\"2\n\x06\x41\x63tion\x12\x08\n\x04NONE\x10\x00\x12\x0e\n\nSHOW_ALERT\x10\x01\x12\x0e\n\nSAVE_TO_DB\x10\x02\"l\n\x04What\x12\x0b\n\x07GENERIC\x10\x00\x12\x10\n\x0cPROC_MONITOR\x10\x01\x12\x0c\n\x08\x46IREWALL\x10\x02\x12\x0e\n\nCONNECTION\x10\x03\x12\x08\n\x04RULE\x10\x04\x12\x0b\n\x07NETLINK\x10\x05\x12\x10\n\x0cKERNEL_EVENT\x10\x06\x42\x06\n\x04\x64\x61ta\"\x19\n\x0bMsgResponse\x12\n\n\x02id\x18\x01 \x01(\x04\"o\n\x05\x45vent\x12\x0c\n\x04time\x18\x01 \x01(\t\x12(\n\nconnection\x18\x02 \x01(\x0b\x32\x14.protocol.Connection\x12\x1c\n\x04rule\x18\x03 \x01(\x0b\x32\x0e.protocol.Rule\x12\x10\n\x08unixnano\x18\x04 \x01(\x03\"\xd3\x06\n\nStatistics\x12\x16\n\x0e\x64\x61\x65mon_version\x18\x01 \x01(\t\x12\r\n\x05rules\x18\x02 \x01(\x04\x12\x0e\n\x06uptime\x18\x03 \x01(\x04\x12\x15\n\rdns_responses\x18\x04 \x01(\x04\x12\x13\n\x0b\x63onnections\x18\x05 \x01(\x04\x12\x0f\n\x07ignored\x18\x06 \x01(\x04\x12\x10\n\x08\x61\x63\x63\x65pted\x18\x07 \x01(\x04\x12\x0f\n\x07\x64ropped\x18\x08 \x01(\x04\x12\x11\n\trule_hits\x18\t \x01(\x04\x12\x13\n\x0brule_misses\x18\n \x01(\x04\x12\x33\n\x08\x62y_proto\x18\x0b \x03(\x0b\x32!.protocol.Statistics.ByProtoEntry\x12\x37\n\nby_address\x18\x0c \x03(\x0b\x32#.protocol.Statistics.ByAddressEntry\x12\x31\n\x07\x62y_host\x18\r \x03(\x0b\x32 .protocol.Statistics.ByHostEntry\x12\x31\n\x07\x62y_port\x18\x0e \x03(\x0b\x32 .protocol.Statistics.ByPortEntry\x12/\n\x06\x62y_uid\x18\x0f \x03(\x0b\x32\x1f.protocol.Statistics.ByUidEntry\x12=\n\rby_executable\x18\x10 \x03(\x0b\x32&.protocol.Statistics.ByExecutableEntry\x12\x1f\n\x06\x65vents\x18\x11 \x03(\x0b\x32\x0f.protocol.Event\x1a.\n\x0c\x42yProtoEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\x04:\x02\x38\x01\x1a\x30\n\x0e\x42yAddressEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\x04:\x02\x38\x01\x1a-\n\x0b\x42yHostEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\x04:\x02\x38\x01\x1a-\n\x0b\x42yPortEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\x04:\x02\x38\x01\x1a,\n\nByUidEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\x04:\x02\x38\x01\x1a\x33\n\x11\x42yExecutableEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\x04:\x02\x38\x01\">\n\x0bPingRequest\x12\n\n\x02id\x18\x01 \x01(\x04\x12#\n\x05stats\x18\x02 \x01(\x0b\x32\x14.protocol.Statistics\"\x17\n\tPingReply\x12\n\n\x02id\x18\x01 \x01(\x04\"\'\n\tStringInt\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\r\"\x9b\x03\n\x07Process\x12\x0b\n\x03pid\x18\x01 \x01(\x04\x12\x0c\n\x04ppid\x18\x02 \x01(\x04\x12\x0b\n\x03uid\x18\x03 \x01(\x04\x12\x0c\n\x04\x63omm\x18\x04 \x01(\t\x12\x0c\n\x04path\x18\x05 \x01(\t\x12\x0c\n\x04\x61rgs\x18\x06 \x03(\t\x12\'\n\x03\x65nv\x18\x07 \x03(\x0b\x32\x1a.protocol.Process.EnvEntry\x12\x0b\n\x03\x63wd\x18\x08 \x01(\t\x12\x33\n\tchecksums\x18\t \x03(\x0b\x32 .protocol.Process.ChecksumsEntry\x12\x10\n\x08io_reads\x18\n \x01(\x04\x12\x11\n\tio_writes\x18\x0b \x01(\x04\x12\x11\n\tnet_reads\x18\x0c \x01(\x04\x12\x12\n\nnet_writes\x18\r \x01(\x04\x12)\n\x0cprocess_tree\x18\x0e \x03(\x0b\x32\x13.protocol.StringInt\x1a*\n\x08\x45nvEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\x1a\x30\n\x0e\x43hecksumsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\xf3\x03\n\nConnection\x12\x10\n\x08protocol\x18\x01 \x01(\t\x12\x0e\n\x06src_ip\x18\x02 \x01(\t\x12\x10\n\x08src_port\x18\x03 \x01(\r\x12\x0e\n\x06\x64st_ip\x18\x04 \x01(\t\x12\x10\n\x08\x64st_host\x18\x05 \x01(\t\x12\x10\n\x08\x64st_port\x18\x06 \x01(\r\x12\x0f\n\x07user_id\x18\x07 \x01(\r\x12\x12\n\nprocess_id\x18\x08 \x01(\r\x12\x14\n\x0cprocess_path\x18\t \x01(\t\x12\x13\n\x0bprocess_cwd\x18\n \x01(\t\x12\x14\n\x0cprocess_args\x18\x0b \x03(\t\x12\x39\n\x0bprocess_env\x18\x0c \x03(\x0b\x32$.protocol.Connection.ProcessEnvEntry\x12\x45\n\x11process_checksums\x18\r \x03(\x0b\x32*.protocol.Connection.ProcessChecksumsEntry\x12)\n\x0cprocess_tree\x18\x0e \x03(\x0b\x32\x13.protocol.StringInt\x1a\x31\n\x0fProcessEnvEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\x1a\x37\n\x15ProcessChecksumsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"l\n\x08Operator\x12\x0c\n\x04type\x18\x01 \x01(\t\x12\x0f\n\x07operand\x18\x02 \x01(\t\x12\x0c\n\x04\x64\x61ta\x18\x03 \x01(\t\x12\x11\n\tsensitive\x18\x04 \x01(\x08\x12 \n\x04list\x18\x05 \x03(\x0b\x32\x12.protocol.Operator\"\xb6\x01\n\x04Rule\x12\x0f\n\x07\x63reated\x18\x01 \x01(\x03\x12\x0c\n\x04name\x18\x02 \x01(\t\x12\x13\n\x0b\x64\x65scription\x18\x03 \x01(\t\x12\x0f\n\x07\x65nabled\x18\x04 \x01(\x08\x12\x12\n\nprecedence\x18\x05 \x01(\x08\x12\r\n\x05nolog\x18\x06 \x01(\x08\x12\x0e\n\x06\x61\x63tion\x18\x07 \x01(\t\x12\x10\n\x08\x64uration\x18\x08 \x01(\t\x12$\n\x08operator\x18\t \x01(\x0b\x32\x12.protocol.Operator\"-\n\x0fStatementValues\x12\x0b\n\x03Key\x18\x01 \x01(\t\x12\r\n\x05Value\x18\x02 \x01(\t\"P\n\tStatement\x12\n\n\x02Op\x18\x01 \x01(\t\x12\x0c\n\x04Name\x18\x02 \x01(\t\x12)\n\x06Values\x18\x03 \x03(\x0b\x32\x19.protocol.StatementValues\"5\n\x0b\x45xpressions\x12&\n\tStatement\x18\x01 \x01(\x0b\x32\x13.protocol.Statement\"\xd6\x01\n\x06\x46wRule\x12\r\n\x05Table\x18\x01 \x01(\t\x12\r\n\x05\x43hain\x18\x02 \x01(\t\x12\x0c\n\x04UUID\x18\x03 \x01(\t\x12\x0f\n\x07\x45nabled\x18\x04 \x01(\x08\x12\x10\n\x08Position\x18\x05 \x01(\x04\x12\x13\n\x0b\x44\x65scription\x18\x06 \x01(\t\x12\x12\n\nParameters\x18\x07 \x01(\t\x12*\n\x0b\x45xpressions\x18\x08 \x03(\x0b\x32\x15.protocol.Expressions\x12\x0e\n\x06Target\x18\t \x01(\t\x12\x18\n\x10TargetParameters\x18\n \x01(\t\"\x95\x01\n\x07\x46wChain\x12\x0c\n\x04Name\x18\x01 \x01(\t\x12\r\n\x05Table\x18\x02 \x01(\t\x12\x0e\n\x06\x46\x61mily\x18\x03 \x01(\t\x12\x10\n\x08Priority\x18\x04 \x01(\t\x12\x0c\n\x04Type\x18\x05 \x01(\t\x12\x0c\n\x04Hook\x18\x06 \x01(\t\x12\x0e\n\x06Policy\x18\x07 \x01(\t\x12\x1f\n\x05Rules\x18\x08 \x03(\x0b\x32\x10.protocol.FwRule\"M\n\x08\x46wChains\x12\x1e\n\x04Rule\x18\x01 \x01(\x0b\x32\x10.protocol.FwRule\x12!\n\x06\x43hains\x18\x02 \x03(\x0b\x32\x11.protocol.FwChain\"X\n\x0bSysFirewall\x12\x0f\n\x07\x45nabled\x18\x01 \x01(\x08\x12\x0f\n\x07Version\x18\x02 \x01(\r\x12\'\n\x0bSystemRules\x18\x03 \x03(\x0b\x32\x12.protocol.FwChains\"\xc4\x01\n\x0c\x43lientConfig\x12\n\n\x02id\x18\x01 \x01(\x04\x12\x0c\n\x04name\x18\x02 \x01(\t\x12\x0f\n\x07version\x18\x03 \x01(\t\x12\x19\n\x11isFirewallRunning\x18\x04 \x01(\x08\x12\x0e\n\x06\x63onfig\x18\x05 \x01(\t\x12\x10\n\x08logLevel\x18\x06 \x01(\r\x12\x1d\n\x05rules\x18\x07 \x03(\x0b\x32\x0e.protocol.Rule\x12-\n\x0esystemFirewall\x18\x08 \x01(\x0b\x32\x15.protocol.SysFirewall\"\xbb\x01\n\x0cNotification\x12\n\n\x02id\x18\x01 \x01(\x04\x12\x12\n\nclientName\x18\x02 \x01(\t\x12\x12\n\nserverName\x18\x03 \x01(\t\x12\x1e\n\x04type\x18\x04 \x01(\x0e\x32\x10.protocol.Action\x12\x0c\n\x04\x64\x61ta\x18\x05 \x01(\t\x12\x1d\n\x05rules\x18\x06 \x03(\x0b\x32\x0e.protocol.Rule\x12*\n\x0bsysFirewall\x18\x07 \x01(\x0b\x32\x15.protocol.SysFirewall\"\\\n\x11NotificationReply\x12\n\n\x02id\x18\x01 \x01(\x04\x12-\n\x04\x63ode\x18\x02 \x01(\x0e\x32\x1f.protocol.NotificationReplyCode\x12\x0c\n\x04\x64\x61ta\x18\x03 \x01(\t*\x95\x02\n\x06\x41\x63tion\x12\x08\n\x04NONE\x10\x00\x12\x17\n\x13\x45NABLE_INTERCEPTION\x10\x01\x12\x18\n\x14\x44ISABLE_INTERCEPTION\x10\x02\x12\x13\n\x0f\x45NABLE_FIREWALL\x10\x03\x12\x14\n\x10\x44ISABLE_FIREWALL\x10\x04\x12\x13\n\x0fRELOAD_FW_RULES\x10\x05\x12\x11\n\rCHANGE_CONFIG\x10\x06\x12\x0f\n\x0b\x45NABLE_RULE\x10\x07\x12\x10\n\x0c\x44ISABLE_RULE\x10\x08\x12\x0f\n\x0b\x44\x45LETE_RULE\x10\t\x12\x0f\n\x0b\x43HANGE_RULE\x10\n\x12\r\n\tLOG_LEVEL\x10\x0b\x12\x08\n\x04STOP\x10\x0c\x12\x0e\n\nTASK_START\x10\r\x12\r\n\tTASK_STOP\x10\x0e**\n\x15NotificationReplyCode\x12\x06\n\x02OK\x10\x00\x12\t\n\x05\x45RROR\x10\x01\x32\xaf\x02\n\x02UI\x12\x34\n\x04Ping\x12\x15.protocol.PingRequest\x1a\x13.protocol.PingReply\"\x00\x12\x31\n\x07\x41skRule\x12\x14.protocol.Connection\x1a\x0e.protocol.Rule\"\x00\x12=\n\tSubscribe\x12\x16.protocol.ClientConfig\x1a\x16.protocol.ClientConfig\"\x00\x12J\n\rNotifications\x12\x1b.protocol.NotificationReply\x1a\x16.protocol.Notification\"\x00(\x01\x30\x01\x12\x35\n\tPostAlert\x12\x0f.protocol.Alert\x1a\x15.protocol.MsgResponse\"\x00\x42\x35Z3github.com/evilsocket/opensnitch/daemon/ui/protocolb\x06proto3')
+  serialized_pb=_b('\n\x08ui.proto\x12\x08protocol\"\x80\x05\n\x05\x41lert\x12\n\n\x02id\x18\x01 \x01(\x04\x12\"\n\x04type\x18\x02 \x01(\x0e\x32\x14.protocol.Alert.Type\x12&\n\x06\x61\x63tion\x18\x03 \x01(\x0e\x32\x16.protocol.Alert.Action\x12*\n\x08priority\x18\x04 \x01(\x0e\x32\x18.protocol.Alert.Priority\x12\"\n\x04what\x18\x05 \x01(\x0e\x32\x14.protocol.Alert.What\x12\x0e\n\x04text\x18\x06 \x01(\tH\x00\x12!\n\x04proc\x18\x08 \x01(\x0b\x32\x11.protocol.ProcessH\x00\x12$\n\x04\x63onn\x18\t \x01(\x0b\x32\x14.protocol.ConnectionH\x00\x12\x1e\n\x04rule\x18\n \x01(\x0b\x32\x0e.protocol.RuleH\x00\x12\"\n\x06\x66wrule\x18\x0b \x01(\x0b\x32\x10.protocol.FwRuleH\x00\x12$\n\x08portscan\x18\x0c \x01(\x0b\x32\x12.protocol.PortScan\")\n\x08Priority\x12\x07\n\x03LOW\x10\x00\x12\n\n\x06MEDIUM\x10\x01\x12\x08\n\x04HIGH\x10\x02\"(\n\x04Type\x12\t\n\x05\x45RROR\x10\x00\x12\x0b\n\x07WARNING\x10\x01\x12\x08\n\x04INFO\x10\x02\"2\n\x06\x41\x63tion\x12\x08\n\x04NONE\x10\x00\x12\x0e\n\nSHOW_ALERT\x10\x01\x12\x0e\n\nSAVE_TO_DB\x10\x02\"{\n\x04What\x12\x0b\n\x07GENERIC\x10\x00\x12\x10\n\x0cPROC_MONITOR\x10\x01\x12\x0c\n\x08\x46IREWALL\x10\x02\x12\x0e\n\nCONNECTION\x10\x03\x12\x08\n\x04RULE\x10\x04\x12\x0b\n\x07NETLINK\x10\x05\x12\x10\n\x0cKERNEL_EVENT\x10\x06\x12\r\n\tPORT_SCAN\x10\x07\x42\x06\n\x04\x64\x61ta\"\xf2\x03\n\x08PortScan\x12\x0e\n\x06src_ip\x18\x01 \x01(\t\x12\x0f\n\x07src_mac\x18\x02 \x01(\t\x12\x1d\n\x15src_mac_is_source_own\x18\x03 \x01(\x08\x12\x0e\n\x06method\x18\x04 \x01(\t\x12\x15\n\rmethod_detail\x18\x05 \x01(\t\x12\x15\n\rflags_summary\x18\x06 \x01(\t\x12\x16\n\x0e\x64istinct_ports\x18\x07 \x01(\r\x12\x10\n\x08min_port\x18\x08 \x01(\r\x12\x10\n\x08max_port\x18\t \x01(\r\x12\x14\n\x0csample_ports\x18\n \x03(\r\x12\x11\n\tprotocols\x18\x0b \x01(\r\x12\x18\n\x10is_protocol_scan\x18\x0c \x01(\x08\x12\r\n\x05score\x18\r \x01(\r\x12\x11\n\tinterface\x18\x0e \x01(\t\x12\x0f\n\x07targets\x18\x0f \x03(\t\x12\x1b\n\x13\x66irst_seen_unixnano\x18\x10 \x01(\x03\x12\x1a\n\x12last_seen_unixnano\x18\x11 \x01(\x03\x12\x11\n\tanomalies\x18\x12 \x03(\t\x12\x18\n\x10has_tcp_evidence\x18\x13 \x01(\x08\x12\x16\n\x0e\x62lock_eligible\x18\x14 \x01(\x08\x12\x18\n\x10suppressed_since\x18\x15 \x01(\x04\x12\x1e\n\x16\x62lock_duration_seconds\x18\x16 \x01(\r\"\x19\n\x0bMsgResponse\x12\n\n\x02id\x18\x01 \x01(\x04\"o\n\x05\x45vent\x12\x0c\n\x04time\x18\x01 \x01(\t\x12(\n\nconnection\x18\x02 \x01(\x0b\x32\x14.protocol.Connection\x12\x1c\n\x04rule\x18\x03 \x01(\x0b\x32\x0e.protocol.Rule\x12\x10\n\x08unixnano\x18\x04 \x01(\x03\"\xd3\x06\n\nStatistics\x12\x16\n\x0e\x64\x61\x65mon_version\x18\x01 \x01(\t\x12\r\n\x05rules\x18\x02 \x01(\x04\x12\x0e\n\x06uptime\x18\x03 \x01(\x04\x12\x15\n\rdns_responses\x18\x04 \x01(\x04\x12\x13\n\x0b\x63onnections\x18\x05 \x01(\x04\x12\x0f\n\x07ignored\x18\x06 \x01(\x04\x12\x10\n\x08\x61\x63\x63\x65pted\x18\x07 \x01(\x04\x12\x0f\n\x07\x64ropped\x18\x08 \x01(\x04\x12\x11\n\trule_hits\x18\t \x01(\x04\x12\x13\n\x0brule_misses\x18\n \x01(\x04\x12\x33\n\x08\x62y_proto\x18\x0b \x03(\x0b\x32!.protocol.Statistics.ByProtoEntry\x12\x37\n\nby_address\x18\x0c \x03(\x0b\x32#.protocol.Statistics.ByAddressEntry\x12\x31\n\x07\x62y_host\x18\r \x03(\x0b\x32 .protocol.Statistics.ByHostEntry\x12\x31\n\x07\x62y_port\x18\x0e \x03(\x0b\x32 .protocol.Statistics.ByPortEntry\x12/\n\x06\x62y_uid\x18\x0f \x03(\x0b\x32\x1f.protocol.Statistics.ByUidEntry\x12=\n\rby_executable\x18\x10 \x03(\x0b\x32&.protocol.Statistics.ByExecutableEntry\x12\x1f\n\x06\x65vents\x18\x11 \x03(\x0b\x32\x0f.protocol.Event\x1a.\n\x0c\x42yProtoEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\x04:\x02\x38\x01\x1a\x30\n\x0e\x42yAddressEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\x04:\x02\x38\x01\x1a-\n\x0b\x42yHostEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\x04:\x02\x38\x01\x1a-\n\x0b\x42yPortEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\x04:\x02\x38\x01\x1a,\n\nByUidEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\x04:\x02\x38\x01\x1a\x33\n\x11\x42yExecutableEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\x04:\x02\x38\x01\">\n\x0bPingRequest\x12\n\n\x02id\x18\x01 \x01(\x04\x12#\n\x05stats\x18\x02 \x01(\x0b\x32\x14.protocol.Statistics\"\x17\n\tPingReply\x12\n\n\x02id\x18\x01 \x01(\x04\"\'\n\tStringInt\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\r\"\x9b\x03\n\x07Process\x12\x0b\n\x03pid\x18\x01 \x01(\x04\x12\x0c\n\x04ppid\x18\x02 \x01(\x04\x12\x0b\n\x03uid\x18\x03 \x01(\x04\x12\x0c\n\x04\x63omm\x18\x04 \x01(\t\x12\x0c\n\x04path\x18\x05 \x01(\t\x12\x0c\n\x04\x61rgs\x18\x06 \x03(\t\x12\'\n\x03\x65nv\x18\x07 \x03(\x0b\x32\x1a.protocol.Process.EnvEntry\x12\x0b\n\x03\x63wd\x18\x08 \x01(\t\x12\x33\n\tchecksums\x18\t \x03(\x0b\x32 .protocol.Process.ChecksumsEntry\x12\x10\n\x08io_reads\x18\n \x01(\x04\x12\x11\n\tio_writes\x18\x0b \x01(\x04\x12\x11\n\tnet_reads\x18\x0c \x01(\x04\x12\x12\n\nnet_writes\x18\r \x01(\x04\x12)\n\x0cprocess_tree\x18\x0e \x03(\x0b\x32\x13.protocol.StringInt\x1a*\n\x08\x45nvEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\x1a\x30\n\x0e\x43hecksumsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\xf3\x03\n\nConnection\x12\x10\n\x08protocol\x18\x01 \x01(\t\x12\x0e\n\x06src_ip\x18\x02 \x01(\t\x12\x10\n\x08src_port\x18\x03 \x01(\r\x12\x0e\n\x06\x64st_ip\x18\x04 \x01(\t\x12\x10\n\x08\x64st_host\x18\x05 \x01(\t\x12\x10\n\x08\x64st_port\x18\x06 \x01(\r\x12\x0f\n\x07user_id\x18\x07 \x01(\r\x12\x12\n\nprocess_id\x18\x08 \x01(\r\x12\x14\n\x0cprocess_path\x18\t \x01(\t\x12\x13\n\x0bprocess_cwd\x18\n \x01(\t\x12\x14\n\x0cprocess_args\x18\x0b \x03(\t\x12\x39\n\x0bprocess_env\x18\x0c \x03(\x0b\x32$.protocol.Connection.ProcessEnvEntry\x12\x45\n\x11process_checksums\x18\r \x03(\x0b\x32*.protocol.Connection.ProcessChecksumsEntry\x12)\n\x0cprocess_tree\x18\x0e \x03(\x0b\x32\x13.protocol.StringInt\x1a\x31\n\x0fProcessEnvEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\x1a\x37\n\x15ProcessChecksumsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"l\n\x08Operator\x12\x0c\n\x04type\x18\x01 \x01(\t\x12\x0f\n\x07operand\x18\x02 \x01(\t\x12\x0c\n\x04\x64\x61ta\x18\x03 \x01(\t\x12\x11\n\tsensitive\x18\x04 \x01(\x08\x12 \n\x04list\x18\x05 \x03(\x0b\x32\x12.protocol.Operator\"\xb6\x01\n\x04Rule\x12\x0f\n\x07\x63reated\x18\x01 \x01(\x03\x12\x0c\n\x04name\x18\x02 \x01(\t\x12\x13\n\x0b\x64\x65scription\x18\x03 \x01(\t\x12\x0f\n\x07\x65nabled\x18\x04 \x01(\x08\x12\x12\n\nprecedence\x18\x05 \x01(\x08\x12\r\n\x05nolog\x18\x06 \x01(\x08\x12\x0e\n\x06\x61\x63tion\x18\x07 \x01(\t\x12\x10\n\x08\x64uration\x18\x08 \x01(\t\x12$\n\x08operator\x18\t \x01(\x0b\x32\x12.protocol.Operator\"-\n\x0fStatementValues\x12\x0b\n\x03Key\x18\x01 \x01(\t\x12\r\n\x05Value\x18\x02 \x01(\t\"P\n\tStatement\x12\n\n\x02Op\x18\x01 \x01(\t\x12\x0c\n\x04Name\x18\x02 \x01(\t\x12)\n\x06Values\x18\x03 \x03(\x0b\x32\x19.protocol.StatementValues\"5\n\x0b\x45xpressions\x12&\n\tStatement\x18\x01 \x01(\x0b\x32\x13.protocol.Statement\"\xd6\x01\n\x06\x46wRule\x12\r\n\x05Table\x18\x01 \x01(\t\x12\r\n\x05\x43hain\x18\x02 \x01(\t\x12\x0c\n\x04UUID\x18\x03 \x01(\t\x12\x0f\n\x07\x45nabled\x18\x04 \x01(\x08\x12\x10\n\x08Position\x18\x05 \x01(\x04\x12\x13\n\x0b\x44\x65scription\x18\x06 \x01(\t\x12\x12\n\nParameters\x18\x07 \x01(\t\x12*\n\x0b\x45xpressions\x18\x08 \x03(\x0b\x32\x15.protocol.Expressions\x12\x0e\n\x06Target\x18\t \x01(\t\x12\x18\n\x10TargetParameters\x18\n \x01(\t\"\x95\x01\n\x07\x46wChain\x12\x0c\n\x04Name\x18\x01 \x01(\t\x12\r\n\x05Table\x18\x02 \x01(\t\x12\x0e\n\x06\x46\x61mily\x18\x03 \x01(\t\x12\x10\n\x08Priority\x18\x04 \x01(\t\x12\x0c\n\x04Type\x18\x05 \x01(\t\x12\x0c\n\x04Hook\x18\x06 \x01(\t\x12\x0e\n\x06Policy\x18\x07 \x01(\t\x12\x1f\n\x05Rules\x18\x08 \x03(\x0b\x32\x10.protocol.FwRule\"M\n\x08\x46wChains\x12\x1e\n\x04Rule\x18\x01 \x01(\x0b\x32\x10.protocol.FwRule\x12!\n\x06\x43hains\x18\x02 \x03(\x0b\x32\x11.protocol.FwChain\"X\n\x0bSysFirewall\x12\x0f\n\x07\x45nabled\x18\x01 \x01(\x08\x12\x0f\n\x07Version\x18\x02 \x01(\r\x12\'\n\x0bSystemRules\x18\x03 \x03(\x0b\x32\x12.protocol.FwChains\"\xc4\x01\n\x0c\x43lientConfig\x12\n\n\x02id\x18\x01 \x01(\x04\x12\x0c\n\x04name\x18\x02 \x01(\t\x12\x0f\n\x07version\x18\x03 \x01(\t\x12\x19\n\x11isFirewallRunning\x18\x04 \x01(\x08\x12\x0e\n\x06\x63onfig\x18\x05 \x01(\t\x12\x10\n\x08logLevel\x18\x06 \x01(\r\x12\x1d\n\x05rules\x18\x07 \x03(\x0b\x32\x0e.protocol.Rule\x12-\n\x0esystemFirewall\x18\x08 \x01(\x0b\x32\x15.protocol.SysFirewall\"\xbb\x01\n\x0cNotification\x12\n\n\x02id\x18\x01 \x01(\x04\x12\x12\n\nclientName\x18\x02 \x01(\t\x12\x12\n\nserverName\x18\x03 \x01(\t\x12\x1e\n\x04type\x18\x04 \x01(\x0e\x32\x10.protocol.Action\x12\x0c\n\x04\x64\x61ta\x18\x05 \x01(\t\x12\x1d\n\x05rules\x18\x06 \x03(\x0b\x32\x0e.protocol.Rule\x12*\n\x0bsysFirewall\x18\x07 \x01(\x0b\x32\x15.protocol.SysFirewall\"\\\n\x11NotificationReply\x12\n\n\x02id\x18\x01 \x01(\x04\x12-\n\x04\x63ode\x18\x02 \x01(\x0e\x32\x1f.protocol.NotificationReplyCode\x12\x0c\n\x04\x64\x61ta\x18\x03 \x01(\t*\xd8\x02\n\x06\x41\x63tion\x12\x08\n\x04NONE\x10\x00\x12\x17\n\x13\x45NABLE_INTERCEPTION\x10\x01\x12\x18\n\x14\x44ISABLE_INTERCEPTION\x10\x02\x12\x13\n\x0f\x45NABLE_FIREWALL\x10\x03\x12\x14\n\x10\x44ISABLE_FIREWALL\x10\x04\x12\x13\n\x0fRELOAD_FW_RULES\x10\x05\x12\x11\n\rCHANGE_CONFIG\x10\x06\x12\x0f\n\x0b\x45NABLE_RULE\x10\x07\x12\x10\n\x0c\x44ISABLE_RULE\x10\x08\x12\x0f\n\x0b\x44\x45LETE_RULE\x10\t\x12\x0f\n\x0b\x43HANGE_RULE\x10\n\x12\r\n\tLOG_LEVEL\x10\x0b\x12\x08\n\x04STOP\x10\x0c\x12\x0e\n\nTASK_START\x10\r\x12\r\n\tTASK_STOP\x10\x0e\x12\x12\n\x0ePORTSCAN_BLOCK\x10\x0f\x12\x14\n\x10PORTSCAN_UNBLOCK\x10\x10\x12\x17\n\x13PORTSCAN_BLOCK_INFO\x10\x11**\n\x15NotificationReplyCode\x12\x06\n\x02OK\x10\x00\x12\t\n\x05\x45RROR\x10\x01\x32\xaf\x02\n\x02UI\x12\x34\n\x04Ping\x12\x15.protocol.PingRequest\x1a\x13.protocol.PingReply\"\x00\x12\x31\n\x07\x41skRule\x12\x14.protocol.Connection\x1a\x0e.protocol.Rule\"\x00\x12=\n\tSubscribe\x12\x16.protocol.ClientConfig\x1a\x16.protocol.ClientConfig\"\x00\x12J\n\rNotifications\x12\x1b.protocol.NotificationReply\x1a\x16.protocol.Notification\"\x00(\x01\x30\x01\x12\x35\n\tPostAlert\x12\x0f.protocol.Alert\x1a\x15.protocol.MsgResponse\"\x00\x42\x35Z3github.com/evilsocket/opensnitch/daemon/ui/protocolb\x06proto3')
 )
 
 _ACTION = _descriptor.EnumDescriptor(
@@ -90,11 +90,23 @@ _ACTION = _descriptor.EnumDescriptor(
       name='TASK_STOP', index=14, number=14,
       serialized_options=None,
       type=None),
+    _descriptor.EnumValueDescriptor(
+      name='PORTSCAN_BLOCK', index=15, number=15,
+      serialized_options=None,
+      type=None),
+    _descriptor.EnumValueDescriptor(
+      name='PORTSCAN_UNBLOCK', index=16, number=16,
+      serialized_options=None,
+      type=None),
+    _descriptor.EnumValueDescriptor(
+      name='PORTSCAN_BLOCK_INFO', index=17, number=17,
+      serialized_options=None,
+      type=None),
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=4153,
-  serialized_end=4430,
+  serialized_start=4707,
+  serialized_end=5051,
 )
 _sym_db.RegisterEnumDescriptor(_ACTION)
 
@@ -116,8 +128,8 @@ _NOTIFICATIONREPLYCODE = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=4432,
-  serialized_end=4474,
+  serialized_start=5053,
+  serialized_end=5095,
 )
 _sym_db.RegisterEnumDescriptor(_NOTIFICATIONREPLYCODE)
 
@@ -137,6 +149,9 @@ LOG_LEVEL = 11
 STOP = 12
 TASK_START = 13
 TASK_STOP = 14
+PORTSCAN_BLOCK = 15
+PORTSCAN_UNBLOCK = 16
+PORTSCAN_BLOCK_INFO = 17
 OK = 0
 ERROR = 1
 
@@ -162,8 +177,8 @@ _ALERT_PRIORITY = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=357,
-  serialized_end=398,
+  serialized_start=395,
+  serialized_end=436,
 )
 _sym_db.RegisterEnumDescriptor(_ALERT_PRIORITY)
 
@@ -188,8 +203,8 @@ _ALERT_TYPE = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=400,
-  serialized_end=440,
+  serialized_start=438,
+  serialized_end=478,
 )
 _sym_db.RegisterEnumDescriptor(_ALERT_TYPE)
 
@@ -214,8 +229,8 @@ _ALERT_ACTION = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=442,
-  serialized_end=492,
+  serialized_start=480,
+  serialized_end=530,
 )
 _sym_db.RegisterEnumDescriptor(_ALERT_ACTION)
 
@@ -253,11 +268,15 @@ _ALERT_WHAT = _descriptor.EnumDescriptor(
       name='KERNEL_EVENT', index=6, number=6,
       serialized_options=None,
       type=None),
+    _descriptor.EnumValueDescriptor(
+      name='PORT_SCAN', index=7, number=7,
+      serialized_options=None,
+      type=None),
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=494,
-  serialized_end=602,
+  serialized_start=532,
+  serialized_end=655,
 )
 _sym_db.RegisterEnumDescriptor(_ALERT_WHAT)
 
@@ -339,6 +358,13 @@ _ALERT = _descriptor.Descriptor(
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='portscan', full_name='protocol.Alert.portscan', index=10,
+      number=12, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
   ],
   extensions=[
   ],
@@ -359,7 +385,185 @@ _ALERT = _descriptor.Descriptor(
       index=0, containing_type=None, fields=[]),
   ],
   serialized_start=23,
-  serialized_end=610,
+  serialized_end=663,
+)
+
+
+_PORTSCAN = _descriptor.Descriptor(
+  name='PortScan',
+  full_name='protocol.PortScan',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='src_ip', full_name='protocol.PortScan.src_ip', index=0,
+      number=1, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='src_mac', full_name='protocol.PortScan.src_mac', index=1,
+      number=2, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='src_mac_is_source_own', full_name='protocol.PortScan.src_mac_is_source_own', index=2,
+      number=3, type=8, cpp_type=7, label=1,
+      has_default_value=False, default_value=False,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='method', full_name='protocol.PortScan.method', index=3,
+      number=4, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='method_detail', full_name='protocol.PortScan.method_detail', index=4,
+      number=5, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='flags_summary', full_name='protocol.PortScan.flags_summary', index=5,
+      number=6, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='distinct_ports', full_name='protocol.PortScan.distinct_ports', index=6,
+      number=7, type=13, cpp_type=3, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='min_port', full_name='protocol.PortScan.min_port', index=7,
+      number=8, type=13, cpp_type=3, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='max_port', full_name='protocol.PortScan.max_port', index=8,
+      number=9, type=13, cpp_type=3, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='sample_ports', full_name='protocol.PortScan.sample_ports', index=9,
+      number=10, type=13, cpp_type=3, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='protocols', full_name='protocol.PortScan.protocols', index=10,
+      number=11, type=13, cpp_type=3, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='is_protocol_scan', full_name='protocol.PortScan.is_protocol_scan', index=11,
+      number=12, type=8, cpp_type=7, label=1,
+      has_default_value=False, default_value=False,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='score', full_name='protocol.PortScan.score', index=12,
+      number=13, type=13, cpp_type=3, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='interface', full_name='protocol.PortScan.interface', index=13,
+      number=14, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='targets', full_name='protocol.PortScan.targets', index=14,
+      number=15, type=9, cpp_type=9, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='first_seen_unixnano', full_name='protocol.PortScan.first_seen_unixnano', index=15,
+      number=16, type=3, cpp_type=2, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='last_seen_unixnano', full_name='protocol.PortScan.last_seen_unixnano', index=16,
+      number=17, type=3, cpp_type=2, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='anomalies', full_name='protocol.PortScan.anomalies', index=17,
+      number=18, type=9, cpp_type=9, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='has_tcp_evidence', full_name='protocol.PortScan.has_tcp_evidence', index=18,
+      number=19, type=8, cpp_type=7, label=1,
+      has_default_value=False, default_value=False,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='block_eligible', full_name='protocol.PortScan.block_eligible', index=19,
+      number=20, type=8, cpp_type=7, label=1,
+      has_default_value=False, default_value=False,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='suppressed_since', full_name='protocol.PortScan.suppressed_since', index=20,
+      number=21, type=4, cpp_type=4, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='block_duration_seconds', full_name='protocol.PortScan.block_duration_seconds', index=21,
+      number=22, type=13, cpp_type=3, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=666,
+  serialized_end=1164,
 )
 
 
@@ -389,8 +593,8 @@ _MSGRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=612,
-  serialized_end=637,
+  serialized_start=1166,
+  serialized_end=1191,
 )
 
 
@@ -441,8 +645,8 @@ _EVENT = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=639,
-  serialized_end=750,
+  serialized_start=1193,
+  serialized_end=1304,
 )
 
 
@@ -479,8 +683,8 @@ _STATISTICS_BYPROTOENTRY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1315,
-  serialized_end=1361,
+  serialized_start=1869,
+  serialized_end=1915,
 )
 
 _STATISTICS_BYADDRESSENTRY = _descriptor.Descriptor(
@@ -516,8 +720,8 @@ _STATISTICS_BYADDRESSENTRY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1363,
-  serialized_end=1411,
+  serialized_start=1917,
+  serialized_end=1965,
 )
 
 _STATISTICS_BYHOSTENTRY = _descriptor.Descriptor(
@@ -553,8 +757,8 @@ _STATISTICS_BYHOSTENTRY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1413,
-  serialized_end=1458,
+  serialized_start=1967,
+  serialized_end=2012,
 )
 
 _STATISTICS_BYPORTENTRY = _descriptor.Descriptor(
@@ -590,8 +794,8 @@ _STATISTICS_BYPORTENTRY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1460,
-  serialized_end=1505,
+  serialized_start=2014,
+  serialized_end=2059,
 )
 
 _STATISTICS_BYUIDENTRY = _descriptor.Descriptor(
@@ -627,8 +831,8 @@ _STATISTICS_BYUIDENTRY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1507,
-  serialized_end=1551,
+  serialized_start=2061,
+  serialized_end=2105,
 )
 
 _STATISTICS_BYEXECUTABLEENTRY = _descriptor.Descriptor(
@@ -664,8 +868,8 @@ _STATISTICS_BYEXECUTABLEENTRY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1553,
-  serialized_end=1604,
+  serialized_start=2107,
+  serialized_end=2158,
 )
 
 _STATISTICS = _descriptor.Descriptor(
@@ -806,8 +1010,8 @@ _STATISTICS = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=753,
-  serialized_end=1604,
+  serialized_start=1307,
+  serialized_end=2158,
 )
 
 
@@ -844,8 +1048,8 @@ _PINGREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1606,
-  serialized_end=1668,
+  serialized_start=2160,
+  serialized_end=2222,
 )
 
 
@@ -875,8 +1079,8 @@ _PINGREPLY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1670,
-  serialized_end=1693,
+  serialized_start=2224,
+  serialized_end=2247,
 )
 
 
@@ -913,8 +1117,8 @@ _STRINGINT = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1695,
-  serialized_end=1734,
+  serialized_start=2249,
+  serialized_end=2288,
 )
 
 
@@ -951,8 +1155,8 @@ _PROCESS_ENVENTRY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2056,
-  serialized_end=2098,
+  serialized_start=2610,
+  serialized_end=2652,
 )
 
 _PROCESS_CHECKSUMSENTRY = _descriptor.Descriptor(
@@ -988,8 +1192,8 @@ _PROCESS_CHECKSUMSENTRY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2100,
-  serialized_end=2148,
+  serialized_start=2654,
+  serialized_end=2702,
 )
 
 _PROCESS = _descriptor.Descriptor(
@@ -1109,8 +1313,8 @@ _PROCESS = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1737,
-  serialized_end=2148,
+  serialized_start=2291,
+  serialized_end=2702,
 )
 
 
@@ -1147,8 +1351,8 @@ _CONNECTION_PROCESSENVENTRY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2544,
-  serialized_end=2593,
+  serialized_start=3098,
+  serialized_end=3147,
 )
 
 _CONNECTION_PROCESSCHECKSUMSENTRY = _descriptor.Descriptor(
@@ -1184,8 +1388,8 @@ _CONNECTION_PROCESSCHECKSUMSENTRY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2595,
-  serialized_end=2650,
+  serialized_start=3149,
+  serialized_end=3204,
 )
 
 _CONNECTION = _descriptor.Descriptor(
@@ -1305,8 +1509,8 @@ _CONNECTION = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2151,
-  serialized_end=2650,
+  serialized_start=2705,
+  serialized_end=3204,
 )
 
 
@@ -1364,8 +1568,8 @@ _OPERATOR = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2652,
-  serialized_end=2760,
+  serialized_start=3206,
+  serialized_end=3314,
 )
 
 
@@ -1451,8 +1655,8 @@ _RULE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2763,
-  serialized_end=2945,
+  serialized_start=3317,
+  serialized_end=3499,
 )
 
 
@@ -1489,8 +1693,8 @@ _STATEMENTVALUES = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2947,
-  serialized_end=2992,
+  serialized_start=3501,
+  serialized_end=3546,
 )
 
 
@@ -1534,8 +1738,8 @@ _STATEMENT = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2994,
-  serialized_end=3074,
+  serialized_start=3548,
+  serialized_end=3628,
 )
 
 
@@ -1565,8 +1769,8 @@ _EXPRESSIONS = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=3076,
-  serialized_end=3129,
+  serialized_start=3630,
+  serialized_end=3683,
 )
 
 
@@ -1659,8 +1863,8 @@ _FWRULE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=3132,
-  serialized_end=3346,
+  serialized_start=3686,
+  serialized_end=3900,
 )
 
 
@@ -1739,8 +1943,8 @@ _FWCHAIN = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=3349,
-  serialized_end=3498,
+  serialized_start=3903,
+  serialized_end=4052,
 )
 
 
@@ -1777,8 +1981,8 @@ _FWCHAINS = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=3500,
-  serialized_end=3577,
+  serialized_start=4054,
+  serialized_end=4131,
 )
 
 
@@ -1822,8 +2026,8 @@ _SYSFIREWALL = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=3579,
-  serialized_end=3667,
+  serialized_start=4133,
+  serialized_end=4221,
 )
 
 
@@ -1902,8 +2106,8 @@ _CLIENTCONFIG = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=3670,
-  serialized_end=3866,
+  serialized_start=4224,
+  serialized_end=4420,
 )
 
 
@@ -1975,8 +2179,8 @@ _NOTIFICATION = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=3869,
-  serialized_end=4056,
+  serialized_start=4423,
+  serialized_end=4610,
 )
 
 
@@ -2020,8 +2224,8 @@ _NOTIFICATIONREPLY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=4058,
-  serialized_end=4150,
+  serialized_start=4612,
+  serialized_end=4704,
 )
 
 _ALERT.fields_by_name['type'].enum_type = _ALERT_TYPE
@@ -2032,6 +2236,7 @@ _ALERT.fields_by_name['proc'].message_type = _PROCESS
 _ALERT.fields_by_name['conn'].message_type = _CONNECTION
 _ALERT.fields_by_name['rule'].message_type = _RULE
 _ALERT.fields_by_name['fwrule'].message_type = _FWRULE
+_ALERT.fields_by_name['portscan'].message_type = _PORTSCAN
 _ALERT_PRIORITY.containing_type = _ALERT
 _ALERT_TYPE.containing_type = _ALERT
 _ALERT_ACTION.containing_type = _ALERT
@@ -2093,6 +2298,7 @@ _NOTIFICATION.fields_by_name['rules'].message_type = _RULE
 _NOTIFICATION.fields_by_name['sysFirewall'].message_type = _SYSFIREWALL
 _NOTIFICATIONREPLY.fields_by_name['code'].enum_type = _NOTIFICATIONREPLYCODE
 DESCRIPTOR.message_types_by_name['Alert'] = _ALERT
+DESCRIPTOR.message_types_by_name['PortScan'] = _PORTSCAN
 DESCRIPTOR.message_types_by_name['MsgResponse'] = _MSGRESPONSE
 DESCRIPTOR.message_types_by_name['Event'] = _EVENT
 DESCRIPTOR.message_types_by_name['Statistics'] = _STATISTICS
@@ -2117,74 +2323,81 @@ DESCRIPTOR.enum_types_by_name['Action'] = _ACTION
 DESCRIPTOR.enum_types_by_name['NotificationReplyCode'] = _NOTIFICATIONREPLYCODE
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
-Alert = _reflection.GeneratedProtocolMessageType('Alert', (_message.Message,), {
-  'DESCRIPTOR' : _ALERT,
-  '__module__' : 'ui_pb2'
+Alert = _reflection.GeneratedProtocolMessageType('Alert', (_message.Message,), dict(
+  DESCRIPTOR = _ALERT,
+  __module__ = 'ui_pb2'
   # @@protoc_insertion_point(class_scope:protocol.Alert)
-  })
+  ))
 _sym_db.RegisterMessage(Alert)
 
-MsgResponse = _reflection.GeneratedProtocolMessageType('MsgResponse', (_message.Message,), {
-  'DESCRIPTOR' : _MSGRESPONSE,
-  '__module__' : 'ui_pb2'
+PortScan = _reflection.GeneratedProtocolMessageType('PortScan', (_message.Message,), dict(
+  DESCRIPTOR = _PORTSCAN,
+  __module__ = 'ui_pb2'
+  # @@protoc_insertion_point(class_scope:protocol.PortScan)
+  ))
+_sym_db.RegisterMessage(PortScan)
+
+MsgResponse = _reflection.GeneratedProtocolMessageType('MsgResponse', (_message.Message,), dict(
+  DESCRIPTOR = _MSGRESPONSE,
+  __module__ = 'ui_pb2'
   # @@protoc_insertion_point(class_scope:protocol.MsgResponse)
-  })
+  ))
 _sym_db.RegisterMessage(MsgResponse)
 
-Event = _reflection.GeneratedProtocolMessageType('Event', (_message.Message,), {
-  'DESCRIPTOR' : _EVENT,
-  '__module__' : 'ui_pb2'
+Event = _reflection.GeneratedProtocolMessageType('Event', (_message.Message,), dict(
+  DESCRIPTOR = _EVENT,
+  __module__ = 'ui_pb2'
   # @@protoc_insertion_point(class_scope:protocol.Event)
-  })
+  ))
 _sym_db.RegisterMessage(Event)
 
-Statistics = _reflection.GeneratedProtocolMessageType('Statistics', (_message.Message,), {
+Statistics = _reflection.GeneratedProtocolMessageType('Statistics', (_message.Message,), dict(
 
-  'ByProtoEntry' : _reflection.GeneratedProtocolMessageType('ByProtoEntry', (_message.Message,), {
-    'DESCRIPTOR' : _STATISTICS_BYPROTOENTRY,
-    '__module__' : 'ui_pb2'
+  ByProtoEntry = _reflection.GeneratedProtocolMessageType('ByProtoEntry', (_message.Message,), dict(
+    DESCRIPTOR = _STATISTICS_BYPROTOENTRY,
+    __module__ = 'ui_pb2'
     # @@protoc_insertion_point(class_scope:protocol.Statistics.ByProtoEntry)
-    })
+    ))
   ,
 
-  'ByAddressEntry' : _reflection.GeneratedProtocolMessageType('ByAddressEntry', (_message.Message,), {
-    'DESCRIPTOR' : _STATISTICS_BYADDRESSENTRY,
-    '__module__' : 'ui_pb2'
+  ByAddressEntry = _reflection.GeneratedProtocolMessageType('ByAddressEntry', (_message.Message,), dict(
+    DESCRIPTOR = _STATISTICS_BYADDRESSENTRY,
+    __module__ = 'ui_pb2'
     # @@protoc_insertion_point(class_scope:protocol.Statistics.ByAddressEntry)
-    })
+    ))
   ,
 
-  'ByHostEntry' : _reflection.GeneratedProtocolMessageType('ByHostEntry', (_message.Message,), {
-    'DESCRIPTOR' : _STATISTICS_BYHOSTENTRY,
-    '__module__' : 'ui_pb2'
+  ByHostEntry = _reflection.GeneratedProtocolMessageType('ByHostEntry', (_message.Message,), dict(
+    DESCRIPTOR = _STATISTICS_BYHOSTENTRY,
+    __module__ = 'ui_pb2'
     # @@protoc_insertion_point(class_scope:protocol.Statistics.ByHostEntry)
-    })
+    ))
   ,
 
-  'ByPortEntry' : _reflection.GeneratedProtocolMessageType('ByPortEntry', (_message.Message,), {
-    'DESCRIPTOR' : _STATISTICS_BYPORTENTRY,
-    '__module__' : 'ui_pb2'
+  ByPortEntry = _reflection.GeneratedProtocolMessageType('ByPortEntry', (_message.Message,), dict(
+    DESCRIPTOR = _STATISTICS_BYPORTENTRY,
+    __module__ = 'ui_pb2'
     # @@protoc_insertion_point(class_scope:protocol.Statistics.ByPortEntry)
-    })
+    ))
   ,
 
-  'ByUidEntry' : _reflection.GeneratedProtocolMessageType('ByUidEntry', (_message.Message,), {
-    'DESCRIPTOR' : _STATISTICS_BYUIDENTRY,
-    '__module__' : 'ui_pb2'
+  ByUidEntry = _reflection.GeneratedProtocolMessageType('ByUidEntry', (_message.Message,), dict(
+    DESCRIPTOR = _STATISTICS_BYUIDENTRY,
+    __module__ = 'ui_pb2'
     # @@protoc_insertion_point(class_scope:protocol.Statistics.ByUidEntry)
-    })
+    ))
   ,
 
-  'ByExecutableEntry' : _reflection.GeneratedProtocolMessageType('ByExecutableEntry', (_message.Message,), {
-    'DESCRIPTOR' : _STATISTICS_BYEXECUTABLEENTRY,
-    '__module__' : 'ui_pb2'
+  ByExecutableEntry = _reflection.GeneratedProtocolMessageType('ByExecutableEntry', (_message.Message,), dict(
+    DESCRIPTOR = _STATISTICS_BYEXECUTABLEENTRY,
+    __module__ = 'ui_pb2'
     # @@protoc_insertion_point(class_scope:protocol.Statistics.ByExecutableEntry)
-    })
+    ))
   ,
-  'DESCRIPTOR' : _STATISTICS,
-  '__module__' : 'ui_pb2'
+  DESCRIPTOR = _STATISTICS,
+  __module__ = 'ui_pb2'
   # @@protoc_insertion_point(class_scope:protocol.Statistics)
-  })
+  ))
 _sym_db.RegisterMessage(Statistics)
 _sym_db.RegisterMessage(Statistics.ByProtoEntry)
 _sym_db.RegisterMessage(Statistics.ByAddressEntry)
@@ -2193,155 +2406,155 @@ _sym_db.RegisterMessage(Statistics.ByPortEntry)
 _sym_db.RegisterMessage(Statistics.ByUidEntry)
 _sym_db.RegisterMessage(Statistics.ByExecutableEntry)
 
-PingRequest = _reflection.GeneratedProtocolMessageType('PingRequest', (_message.Message,), {
-  'DESCRIPTOR' : _PINGREQUEST,
-  '__module__' : 'ui_pb2'
+PingRequest = _reflection.GeneratedProtocolMessageType('PingRequest', (_message.Message,), dict(
+  DESCRIPTOR = _PINGREQUEST,
+  __module__ = 'ui_pb2'
   # @@protoc_insertion_point(class_scope:protocol.PingRequest)
-  })
+  ))
 _sym_db.RegisterMessage(PingRequest)
 
-PingReply = _reflection.GeneratedProtocolMessageType('PingReply', (_message.Message,), {
-  'DESCRIPTOR' : _PINGREPLY,
-  '__module__' : 'ui_pb2'
+PingReply = _reflection.GeneratedProtocolMessageType('PingReply', (_message.Message,), dict(
+  DESCRIPTOR = _PINGREPLY,
+  __module__ = 'ui_pb2'
   # @@protoc_insertion_point(class_scope:protocol.PingReply)
-  })
+  ))
 _sym_db.RegisterMessage(PingReply)
 
-StringInt = _reflection.GeneratedProtocolMessageType('StringInt', (_message.Message,), {
-  'DESCRIPTOR' : _STRINGINT,
-  '__module__' : 'ui_pb2'
+StringInt = _reflection.GeneratedProtocolMessageType('StringInt', (_message.Message,), dict(
+  DESCRIPTOR = _STRINGINT,
+  __module__ = 'ui_pb2'
   # @@protoc_insertion_point(class_scope:protocol.StringInt)
-  })
+  ))
 _sym_db.RegisterMessage(StringInt)
 
-Process = _reflection.GeneratedProtocolMessageType('Process', (_message.Message,), {
+Process = _reflection.GeneratedProtocolMessageType('Process', (_message.Message,), dict(
 
-  'EnvEntry' : _reflection.GeneratedProtocolMessageType('EnvEntry', (_message.Message,), {
-    'DESCRIPTOR' : _PROCESS_ENVENTRY,
-    '__module__' : 'ui_pb2'
+  EnvEntry = _reflection.GeneratedProtocolMessageType('EnvEntry', (_message.Message,), dict(
+    DESCRIPTOR = _PROCESS_ENVENTRY,
+    __module__ = 'ui_pb2'
     # @@protoc_insertion_point(class_scope:protocol.Process.EnvEntry)
-    })
+    ))
   ,
 
-  'ChecksumsEntry' : _reflection.GeneratedProtocolMessageType('ChecksumsEntry', (_message.Message,), {
-    'DESCRIPTOR' : _PROCESS_CHECKSUMSENTRY,
-    '__module__' : 'ui_pb2'
+  ChecksumsEntry = _reflection.GeneratedProtocolMessageType('ChecksumsEntry', (_message.Message,), dict(
+    DESCRIPTOR = _PROCESS_CHECKSUMSENTRY,
+    __module__ = 'ui_pb2'
     # @@protoc_insertion_point(class_scope:protocol.Process.ChecksumsEntry)
-    })
+    ))
   ,
-  'DESCRIPTOR' : _PROCESS,
-  '__module__' : 'ui_pb2'
+  DESCRIPTOR = _PROCESS,
+  __module__ = 'ui_pb2'
   # @@protoc_insertion_point(class_scope:protocol.Process)
-  })
+  ))
 _sym_db.RegisterMessage(Process)
 _sym_db.RegisterMessage(Process.EnvEntry)
 _sym_db.RegisterMessage(Process.ChecksumsEntry)
 
-Connection = _reflection.GeneratedProtocolMessageType('Connection', (_message.Message,), {
+Connection = _reflection.GeneratedProtocolMessageType('Connection', (_message.Message,), dict(
 
-  'ProcessEnvEntry' : _reflection.GeneratedProtocolMessageType('ProcessEnvEntry', (_message.Message,), {
-    'DESCRIPTOR' : _CONNECTION_PROCESSENVENTRY,
-    '__module__' : 'ui_pb2'
+  ProcessEnvEntry = _reflection.GeneratedProtocolMessageType('ProcessEnvEntry', (_message.Message,), dict(
+    DESCRIPTOR = _CONNECTION_PROCESSENVENTRY,
+    __module__ = 'ui_pb2'
     # @@protoc_insertion_point(class_scope:protocol.Connection.ProcessEnvEntry)
-    })
+    ))
   ,
 
-  'ProcessChecksumsEntry' : _reflection.GeneratedProtocolMessageType('ProcessChecksumsEntry', (_message.Message,), {
-    'DESCRIPTOR' : _CONNECTION_PROCESSCHECKSUMSENTRY,
-    '__module__' : 'ui_pb2'
+  ProcessChecksumsEntry = _reflection.GeneratedProtocolMessageType('ProcessChecksumsEntry', (_message.Message,), dict(
+    DESCRIPTOR = _CONNECTION_PROCESSCHECKSUMSENTRY,
+    __module__ = 'ui_pb2'
     # @@protoc_insertion_point(class_scope:protocol.Connection.ProcessChecksumsEntry)
-    })
+    ))
   ,
-  'DESCRIPTOR' : _CONNECTION,
-  '__module__' : 'ui_pb2'
+  DESCRIPTOR = _CONNECTION,
+  __module__ = 'ui_pb2'
   # @@protoc_insertion_point(class_scope:protocol.Connection)
-  })
+  ))
 _sym_db.RegisterMessage(Connection)
 _sym_db.RegisterMessage(Connection.ProcessEnvEntry)
 _sym_db.RegisterMessage(Connection.ProcessChecksumsEntry)
 
-Operator = _reflection.GeneratedProtocolMessageType('Operator', (_message.Message,), {
-  'DESCRIPTOR' : _OPERATOR,
-  '__module__' : 'ui_pb2'
+Operator = _reflection.GeneratedProtocolMessageType('Operator', (_message.Message,), dict(
+  DESCRIPTOR = _OPERATOR,
+  __module__ = 'ui_pb2'
   # @@protoc_insertion_point(class_scope:protocol.Operator)
-  })
+  ))
 _sym_db.RegisterMessage(Operator)
 
-Rule = _reflection.GeneratedProtocolMessageType('Rule', (_message.Message,), {
-  'DESCRIPTOR' : _RULE,
-  '__module__' : 'ui_pb2'
+Rule = _reflection.GeneratedProtocolMessageType('Rule', (_message.Message,), dict(
+  DESCRIPTOR = _RULE,
+  __module__ = 'ui_pb2'
   # @@protoc_insertion_point(class_scope:protocol.Rule)
-  })
+  ))
 _sym_db.RegisterMessage(Rule)
 
-StatementValues = _reflection.GeneratedProtocolMessageType('StatementValues', (_message.Message,), {
-  'DESCRIPTOR' : _STATEMENTVALUES,
-  '__module__' : 'ui_pb2'
+StatementValues = _reflection.GeneratedProtocolMessageType('StatementValues', (_message.Message,), dict(
+  DESCRIPTOR = _STATEMENTVALUES,
+  __module__ = 'ui_pb2'
   # @@protoc_insertion_point(class_scope:protocol.StatementValues)
-  })
+  ))
 _sym_db.RegisterMessage(StatementValues)
 
-Statement = _reflection.GeneratedProtocolMessageType('Statement', (_message.Message,), {
-  'DESCRIPTOR' : _STATEMENT,
-  '__module__' : 'ui_pb2'
+Statement = _reflection.GeneratedProtocolMessageType('Statement', (_message.Message,), dict(
+  DESCRIPTOR = _STATEMENT,
+  __module__ = 'ui_pb2'
   # @@protoc_insertion_point(class_scope:protocol.Statement)
-  })
+  ))
 _sym_db.RegisterMessage(Statement)
 
-Expressions = _reflection.GeneratedProtocolMessageType('Expressions', (_message.Message,), {
-  'DESCRIPTOR' : _EXPRESSIONS,
-  '__module__' : 'ui_pb2'
+Expressions = _reflection.GeneratedProtocolMessageType('Expressions', (_message.Message,), dict(
+  DESCRIPTOR = _EXPRESSIONS,
+  __module__ = 'ui_pb2'
   # @@protoc_insertion_point(class_scope:protocol.Expressions)
-  })
+  ))
 _sym_db.RegisterMessage(Expressions)
 
-FwRule = _reflection.GeneratedProtocolMessageType('FwRule', (_message.Message,), {
-  'DESCRIPTOR' : _FWRULE,
-  '__module__' : 'ui_pb2'
+FwRule = _reflection.GeneratedProtocolMessageType('FwRule', (_message.Message,), dict(
+  DESCRIPTOR = _FWRULE,
+  __module__ = 'ui_pb2'
   # @@protoc_insertion_point(class_scope:protocol.FwRule)
-  })
+  ))
 _sym_db.RegisterMessage(FwRule)
 
-FwChain = _reflection.GeneratedProtocolMessageType('FwChain', (_message.Message,), {
-  'DESCRIPTOR' : _FWCHAIN,
-  '__module__' : 'ui_pb2'
+FwChain = _reflection.GeneratedProtocolMessageType('FwChain', (_message.Message,), dict(
+  DESCRIPTOR = _FWCHAIN,
+  __module__ = 'ui_pb2'
   # @@protoc_insertion_point(class_scope:protocol.FwChain)
-  })
+  ))
 _sym_db.RegisterMessage(FwChain)
 
-FwChains = _reflection.GeneratedProtocolMessageType('FwChains', (_message.Message,), {
-  'DESCRIPTOR' : _FWCHAINS,
-  '__module__' : 'ui_pb2'
+FwChains = _reflection.GeneratedProtocolMessageType('FwChains', (_message.Message,), dict(
+  DESCRIPTOR = _FWCHAINS,
+  __module__ = 'ui_pb2'
   # @@protoc_insertion_point(class_scope:protocol.FwChains)
-  })
+  ))
 _sym_db.RegisterMessage(FwChains)
 
-SysFirewall = _reflection.GeneratedProtocolMessageType('SysFirewall', (_message.Message,), {
-  'DESCRIPTOR' : _SYSFIREWALL,
-  '__module__' : 'ui_pb2'
+SysFirewall = _reflection.GeneratedProtocolMessageType('SysFirewall', (_message.Message,), dict(
+  DESCRIPTOR = _SYSFIREWALL,
+  __module__ = 'ui_pb2'
   # @@protoc_insertion_point(class_scope:protocol.SysFirewall)
-  })
+  ))
 _sym_db.RegisterMessage(SysFirewall)
 
-ClientConfig = _reflection.GeneratedProtocolMessageType('ClientConfig', (_message.Message,), {
-  'DESCRIPTOR' : _CLIENTCONFIG,
-  '__module__' : 'ui_pb2'
+ClientConfig = _reflection.GeneratedProtocolMessageType('ClientConfig', (_message.Message,), dict(
+  DESCRIPTOR = _CLIENTCONFIG,
+  __module__ = 'ui_pb2'
   # @@protoc_insertion_point(class_scope:protocol.ClientConfig)
-  })
+  ))
 _sym_db.RegisterMessage(ClientConfig)
 
-Notification = _reflection.GeneratedProtocolMessageType('Notification', (_message.Message,), {
-  'DESCRIPTOR' : _NOTIFICATION,
-  '__module__' : 'ui_pb2'
+Notification = _reflection.GeneratedProtocolMessageType('Notification', (_message.Message,), dict(
+  DESCRIPTOR = _NOTIFICATION,
+  __module__ = 'ui_pb2'
   # @@protoc_insertion_point(class_scope:protocol.Notification)
-  })
+  ))
 _sym_db.RegisterMessage(Notification)
 
-NotificationReply = _reflection.GeneratedProtocolMessageType('NotificationReply', (_message.Message,), {
-  'DESCRIPTOR' : _NOTIFICATIONREPLY,
-  '__module__' : 'ui_pb2'
+NotificationReply = _reflection.GeneratedProtocolMessageType('NotificationReply', (_message.Message,), dict(
+  DESCRIPTOR = _NOTIFICATIONREPLY,
+  __module__ = 'ui_pb2'
   # @@protoc_insertion_point(class_scope:protocol.NotificationReply)
-  })
+  ))
 _sym_db.RegisterMessage(NotificationReply)
 
 
@@ -2363,8 +2576,8 @@ _UI = _descriptor.ServiceDescriptor(
   file=DESCRIPTOR,
   index=0,
   serialized_options=None,
-  serialized_start=4477,
-  serialized_end=4780,
+  serialized_start=5098,
+  serialized_end=5401,
   methods=[
   _descriptor.MethodDescriptor(
     name='Ping',

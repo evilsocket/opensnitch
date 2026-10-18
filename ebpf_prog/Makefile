@@ -66,7 +66,21 @@ $(info KERNEL_HEADERS = $(KERNEL_HEADERS))
 $(info KERNEL_ARCH    = $(KERNEL_ARCH))
 $(info EXTRA_FLAGS    = $(EXTRA_FLAGS))
 
-SRC := $(wildcard *.c)
+# opensnitch-scan.c is excluded deliberately, and must stay excluded.
+#
+# This Makefile compiles against the kernel's own headers with -D__KERNEL__ and
+# a long list of -I paths into the kernel tree. The scan module is a portable
+# libbpf program: it includes <bpf/bpf_helpers.h>, which is not on those paths,
+# so adding it here fails the build of every OTHER module with
+# "fatal error: 'bpf/bpf_helpers.h' file not found" -- it is a wildcard, so
+# without the exclusion, the file being in this directory would be enough to
+# break the existing build, including the upstream CI workflow and
+# utils/packaging/build_modules.sh.
+#
+# It is built by Makefile.scan, which needs no kernel source at all:
+# `make -f Makefile.scan`, as utils/packaging/build_modules.sh does.
+SCAN_SRC := opensnitch-scan.c
+SRC := $(filter-out $(SCAN_SRC),$(wildcard *.c))
 BIN := $(SRC:.c=.o)
 CFLAGS = -I. \
 	-I$(KERNEL_HEADERS)/arch/$(ARCH)/include/generated/ \

@@ -68,6 +68,7 @@ install -m 644 $B daemon/data/network_aliases.json %{buildroot}/etc/opensnitchd/
 install -m 644 ebpf_prog/opensnitch.o %{buildroot}/usr/lib/opensnitchd/ebpf/opensnitch.o
 install -m 644 ebpf_prog/opensnitch-dns.o %{buildroot}/usr/lib/opensnitchd/ebpf/opensnitch-dns.o
 install -m 644 ebpf_prog/opensnitch-procs.o %{buildroot}/usr/lib/opensnitchd/ebpf/opensnitch-procs.o
+install -m 644 ebpf_prog/opensnitch-scan.o %{buildroot}/usr/lib/opensnitchd/ebpf/opensnitch-scan.o
 
 B=""
 r="/etc/opensnitchd/rules/000-allow-localhost.json"
@@ -122,4 +123,5 @@ rm -rf %{buildroot}
 %{_prefix}/lib/opensnitchd/ebpf/opensnitch.o
 %{_prefix}/lib/opensnitchd/ebpf/opensnitch-dns.o
 %{_prefix}/lib/opensnitchd/ebpf/opensnitch-procs.o
+%{_prefix}/lib/opensnitchd/ebpf/opensnitch-scan.o
 %{_sysconfdir}/logrotate.d/opensnitch

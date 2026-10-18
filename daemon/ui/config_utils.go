@@ -271,6 +271,12 @@ func (c *Client) reloadConfiguration(reload bool, newConfig *config.Config) (err
 		log.Debug("[config] not flushing established connections")
 	}
 
+	if PortScanReload != nil {
+		PortScanReload(c, newConfig)
+	} else {
+		log.Debug("[config] no port scan reload hook is registered")
+	}
+
 	if newConfig.TasksOptions.ConfigPath != c.config.TasksOptions.ConfigPath {
 		log.Debug("[config] reloading TasksOptions.ConfigFile from %s", newConfig.TasksOptions.ConfigPath)
 		if err := TaskMgr.LoadTaskFile(newConfig.TasksOptions.ConfigPath); err != nil {

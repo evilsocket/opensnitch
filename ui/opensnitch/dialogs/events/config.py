@@ -516,6 +516,32 @@ class ConfigManager:
                 "last_offset": 0,
                 "tracking_column": constants.COL_NET_METADATA
             },
+            # The port scan sources, blocked or detected. The tab is a widget of its own
+            # (customwidgets/portscanblocksview.py) fed by a daemon task, not a
+            # view of a SQL table: "view" stays None, and the code paths that
+            # query the active table skip this tab.
+            constants.TAB_PORTSCAN: {
+                "enabled": True,
+                "name": "portscan_blocks",
+                "tabName": QC.translate("stats", "Port scan Detection"),
+                "isTab": True,
+                "label": None,
+                "cmd": None,
+                "cmdCleanStats": None,
+                "view": None,
+                "filterLine": None,
+                "model": None,
+                "delegate": None,
+                "display_fields": "",
+                "query": "",
+                "header_labels": [],
+                "completer": None,
+                "context_menu": None,
+                "last_order_by": "1",
+                "last_order_to": 0,
+                "last_offset": 0,
+                "tracking_column": None
+            },
             constants.TAB_FIREWALL: {
                 "enabled": True,
                 "name": "firewall",

@@ -78,11 +78,13 @@ TAB_ADDRS = 5
 TAB_PORTS = 6
 TAB_USERS = 7
 TAB_NETSTAT = 8
+# not backed by a SQL table: the list of port scan sources
+TAB_PORTSCAN = 9
 # these "specials" tables must be placed after the "real" tabs
-TAB_FIREWALL = 9 # in rules tab
-TAB_ALERTS = 10 # in rules tab
+TAB_FIREWALL = 10 # in rules tab
+TAB_ALERTS = 11 # in rules tab
 
-TAB_TOTAL = 11
+TAB_TOTAL = 12
 
 # tree's top level items
 NO_PARENT = -1
@@ -91,6 +93,7 @@ RULES_TREE_APPS  = 0
 RULES_TREE_ALERTS = 1
 RULES_TREE_NODES = 2
 RULES_TREE_FIREWALL = 3
+RULES_TREE_PORTSCAN = 4
 
 RULES_TREE_PERMANENT = 0
 RULES_TREE_TEMPORARY = 1

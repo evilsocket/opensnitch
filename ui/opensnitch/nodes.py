@@ -320,6 +320,29 @@ class Nodes(QObject):
 
         return nid, noti
 
+    def forget_notification(self, nid):
+        """Stops waiting for the replies to a notification."""
+        self._notifications_sent.pop(nid, None)
+
+    # Actions whose reply is accepted only from the node they were sent to.
+    # Ids are timestamps, easy to guess: another node answering first would
+    # consume the id, and the real answer, a refusal to block or to release,
+    # would be lost.
+    _REPLY_FROM_NODE_ONLY = (
+        ui_pb2.PORTSCAN_BLOCK, ui_pb2.PORTSCAN_UNBLOCK, ui_pb2.PORTSCAN_BLOCK_INFO)
+
+    def reply_is_from(self, node, addr):
+        """Reports whether a reply delivered with addr came from node, the key
+        it was sent to. The node's stream delivers addr as get_addr gives it
+        for the key; send_notification's own answers, for a node that is not
+        connected, carry the key itself."""
+        if addr == node:
+            return True
+        try:
+            return self.get_addr(node)[1] == addr
+        except Exception:
+            return False
+
     def send_notification(self, addr, notification, callback_signal=None):
         try:
             notification.id = int(str(time.time()).replace(".", ""))
@@ -338,7 +361,8 @@ class Nodes(QObject):
 
             self._notifications_sent[notification.id] = {
                     'callback': callback_signal,
-                    'type': notification.type
+                    'type': notification.type,
+                    'addr': addr
                     }
 
             self._nodes[addr]['notifications'].put(notification)
@@ -386,6 +410,12 @@ class Nodes(QObject):
 
             if self._notifications_sent[reply.id] == None:
                 self.logger.debug("reply notification body empty %s: %s", addr, reply.id)
+                return
+
+            sent = self._notifications_sent[reply.id]
+            if sent['type'] in self._REPLY_FROM_NODE_ONLY and \
+                    not self.reply_is_from(sent.get('addr'), addr):
+                self.logger.warning("reply notification from another node %s: %s", addr, reply.id)
                 return
 
             if self._notifications_sent[reply.id]['callback'] != None:

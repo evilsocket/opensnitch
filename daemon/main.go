@@ -370,6 +370,10 @@ func initSystemdResolvedMonitor() {
 
 func doCleanup(queue, repeatQueue *netfilter.Queue) {
 	log.Info("Cleaning up ...")
+	// Before firewall.Stop(), so the port scan blocks are released while the
+	// netlink connection is still usable. A block that outlives the daemon is
+	// a rule nobody owns and nobody will remove.
+	stopPortScanDetection()
 	firewall.Stop()
 	monitor.End()
 	uiClient.Close()
@@ -663,6 +667,19 @@ func main() {
 	}(uiClient, cfg.Ebpf.ModulesPath)
 
 	initSystemdResolvedMonitor()
+
+	// Inbound port scan detection. Started last, once the firewall and the UI
+	// client are up: it needs the firewall to install blocks and the client to
+	// report them. It never aborts the daemon -- a machine that cannot run
+	// detection must still get its outbound filtering.
+	startPortScanDetection(cfg, uiClient)
+
+	// And let a configuration reload reach it. OpenSnitch rewrites its live
+	// state on every write to the configuration file, and port scan detection
+	// must follow it like every other subsystem.
+	ui.PortScanReload = func(client *ui.Client, newCfg *config.Config) {
+		reloadPortScanDetection(newCfg, client)
+	}
 
 	log.Info("Running on netfilter queue #%d ...", queueNum)
 	for {

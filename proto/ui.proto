@@ -44,6 +44,8 @@ message Alert {
         NETLINK = 5;
         // bind, exec, etc
         KERNEL_EVENT = 6;
+        // an inbound port scan was detected against this host
+        PORT_SCAN = 7;
     }
 
     uint64 id = 1;
@@ -63,6 +65,89 @@ message Alert {
         Rule rule = 10;
         FwRule fwrule = 11;
     }
+    // Inbound port scan events. Deliberately OUTSIDE the oneof: a port scan
+    // alert also carries a one-line summary in `text`, which is all a GUI that
+    // predates this field can show. Inside the oneof, such a GUI would receive
+    // an alert with an empty body, marked critical when it proposed a block.
+    PortScan portscan = 12;
+}
+
+/* PortScan describes an inbound port scan detected against this host.
+ *
+ * Every field states only what the observed packets establish. In particular
+ * src_ip is "the address the packets carried", NOT "the attacker": with
+ * nmap -D (decoys), nmap -S (spoofing), an idle scan or an FTP bounce, the
+ * source address belongs to an uninvolved third party and the real origin is
+ * not recoverable from the traffic. Anything acting on this message -- above
+ * all, blocking -- must treat it that way.
+ */
+message PortScan {
+    // The source address the packets carried.
+    string src_ip = 1;
+
+    // Link-layer source address, formatted aa:bb:cc:dd:ee:ff, empty if the
+    // packet source could not see layer 2 (a point-to-point tunnel, for
+    // instance).
+    string src_mac = 2;
+    // Whether src_mac is the scanner's own address. It is only so when the
+    // source is on a directly attached subnet; otherwise the MAC belongs to
+    // the last router the packets crossed and identifies nobody. A client
+    // displaying src_mac without honouring this flag would be attributing a
+    // router's address to an attacker.
+    bool src_mac_is_source_own = 3;
+
+    // Stable identifier of the technique, e.g. "tcp-syn", "tcp-xmas",
+    // "tcp-ack", "udp", "ip-protocol", "tcp-fragmented". Values are never
+    // repurposed; new ones may be added.
+    string method = 4;
+    // Human-readable description, naming every nmap option that produces
+    // indistinguishable packets rather than picking one arbitrarily.
+    string method_detail = 5;
+    // TCP control bits summarised the way scanlogd does: one character per
+    // bit, uppercase when always set, lowercase when always clear, '?' when it
+    // varied between packets. Empty when no TCP flags were readable.
+    string flags_summary = 6;
+
+    uint32 distinct_ports = 7;
+    uint32 min_port = 8;
+    uint32 max_port = 9;
+    // A sample of the probed ports, capped. Not the full list.
+    repeated uint32 sample_ports = 10;
+    // Number of distinct IP protocol numbers seen from this source.
+    uint32 protocols = 11;
+    // Set when the source varied the IP protocol rather than the port, which
+    // is what nmap -sO does.
+    bool is_protocol_scan = 12;
+
+    uint32 score = 13;
+    string interface = 14;
+    // Local addresses this source probed.
+    repeated string targets = 15;
+
+    int64 first_seen_unixnano = 16;
+    int64 last_seen_unixnano = 17;
+
+    // Packet-level oddities observed: fragmentation, an over-long IPv6
+    // extension header chain (the Topera evasion signature), truncated
+    // headers, a SYN carrying no TCP options (a raw packet generator such as
+    // masscan). Reported rather than dropped: an evasion attempt is evidence.
+    repeated string anomalies = 18;
+
+    // Whether a probe only a scanner sends contributed: a SYN, TCP flags that
+    // cannot acknowledge anything, or a TCP probe whose flags could not be read
+    // (nmap -f). Not merely whether TCP arrived: TCP carrying ACK has the
+    // shape of return traffic and does not count. An accusation without it
+    // rests on an address that costs nothing to forge, so it must not on its
+    // own justify blocking.
+    bool has_tcp_evidence = 19;
+    // Whether policy allows a block to be proposed or applied for this source.
+    bool block_eligible = 20;
+    // How many further scan events were withheld by rate limiting since the
+    // last one was sent. Non-zero means several sources are scanning and the
+    // client must say so, instead of presenting this as the only one.
+    uint64 suppressed_since = 21;
+    // Seconds a block would last if accepted.
+    uint32 block_duration_seconds = 22;
 }
 
 message MsgResponse {
@@ -192,6 +277,42 @@ enum Action {
      */
     TASK_START = 13;
     TASK_STOP = 14;
+
+    /* Sent by the GUI when the user answers a port scan alert, or blocks a
+     * source of the detection history after the fact.
+     *
+     * Notification.data carries a JSON object:
+     *   {"ip": "192.0.2.66", "dismiss": false, "force": false}
+     *
+     * "dismiss": true answers "Ignore": the pending proposal is forgotten and
+     * nothing is blocked. "force": true blocks a source whose detection is not
+     * enough on its own (its address may be forged); the user was warned. The
+     * daemon blocks only a source it reported, and never one on its
+     * never-block list. The block lasts the node's configured
+     * PortScan.Block.Duration; the GUI does not choose it. The daemon replies
+     * OK, or ERROR with the reason it refused.
+     *
+     * The daemon, not the GUI, owns the block: it installs the firewall rule
+     * and expires it. A GUI that installed the rule itself would leave a
+     * permanent block behind the moment it was closed, and there would be no
+     * enforcement at all on a headless node.
+     */
+    PORTSCAN_BLOCK = 15;
+    /* Release a block early. Notification.data: {"ip": "192.0.2.66"}.
+     * With "forget": true, remove the source from the list instead: its
+     * block, if any, is released and its detection deleted; ERROR if the
+     * daemon lists neither. A daemon that predates "forget" ignores it.
+     */
+    PORTSCAN_UNBLOCK = 16;
+    /* Ask why an address is blocked and how. Notification.data:
+     * {"ip": "192.0.2.66"}. The daemon replies OK with a JSON object in
+     * NotificationReply.data: the block, the scan that led to it, and the
+     * firewall objects applying it, read back from the firewall (see
+     * daemon/tasks/portscanblocks.Info). For a source of the detection
+     * history that is not blocked, the scan and what became of it. ERROR if
+     * the address is neither.
+     */
+    PORTSCAN_BLOCK_INFO = 17;
 }
 
 message StatementValues {

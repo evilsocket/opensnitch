@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
+	"net/netip"
 	"strconv"
 	"strings"
 	"time"
@@ -17,6 +18,7 @@ import (
 	"github.com/evilsocket/opensnitch/daemon/tasks/base"
 	"github.com/evilsocket/opensnitch/daemon/tasks/nodemonitor"
 	"github.com/evilsocket/opensnitch/daemon/tasks/pidmonitor"
+	"github.com/evilsocket/opensnitch/daemon/tasks/portscanblocks"
 	"github.com/evilsocket/opensnitch/daemon/tasks/socketsmonitor"
 	"github.com/evilsocket/opensnitch/daemon/ui/config"
 	"github.com/evilsocket/opensnitch/daemon/ui/protocol"
@@ -176,6 +178,8 @@ func (c *Client) handleActionTaskStart(stream protocol.UI_NotificationsClient, n
 		c.monitorNode(conf["node"].(string), conf["interval"].(string), stream, ntf)
 	case socketsmonitor.Name:
 		c.monitorSockets(taskConf.Data, stream, ntf)
+	case portscanblocks.Name:
+		c.monitorPortScanBlocks(taskConf.Data, stream, ntf)
 	default:
 		log.Debug("TaskStart, unknown task: %v", taskConf)
 		//c.sendNotificationReply(stream, ntf.Type, ntf.Id, "", err)
@@ -215,6 +219,9 @@ func (c *Client) handleActionTaskStop(stream protocol.UI_NotificationsClient, nt
 
 	case socketsmonitor.Name:
 		TaskMgr.RemoveTask(socketsmonitor.Name)
+
+	case portscanblocks.Name:
+		TaskMgr.RemoveTask(portscanblocks.Name)
 
 	default:
 		log.Debug("TaskStop, unknown task: %v", taskConf)
@@ -322,7 +329,210 @@ func (c *Client) handleNotification(stream protocol.UI_NotificationsClient, ntf 
 	// CHANGE_RULE can add() or replace() an existing rule.
 	case ntf.Type == protocol.Action_CHANGE_RULE:
 		c.handleActionChangeRule(stream, ntf)
+
+	case ntf.Type == protocol.Action_PORTSCAN_BLOCK:
+		c.handleActionPortScanBlock(stream, ntf)
+
+	case ntf.Type == protocol.Action_PORTSCAN_UNBLOCK:
+		c.handleActionPortScanUnblock(stream, ntf)
+
+	case ntf.Type == protocol.Action_PORTSCAN_BLOCK_INFO:
+		c.handleActionPortScanBlockInfo(stream, ntf)
 	}
+}
+
+// PortScanResponder is the subset of the port scan monitor this client needs.
+//
+// It is an interface rather than a concrete type so that daemon/ui does not
+// import daemon/portscan, which would make the dependency run in both
+// directions once portscan needs the protocol package.
+type PortScanResponder interface {
+	// ConfirmBlock blocks a source the daemon reported. force blocks one
+	// whose detection is not enough on its own; the user was warned.
+	ConfirmBlock(addr netip.Addr, force bool) error
+	// ReleaseBlock reports whether there was a block to release.
+	ReleaseBlock(addr netip.Addr) (bool, error)
+	// Forget removes a source from the list, releasing its block if it has
+	// one, and reports whether there was anything to remove and whether a
+	// block was released.
+	Forget(addr netip.Addr) (removed, released bool, err error)
+	DismissProposal(addr netip.Addr)
+
+	// BlockedList reports what is blocked right now, so that the user
+	// interface can show the effects of this feature rather than only its
+	// alerts. See daemon/tasks/portscanblocks.
+	BlockedList(limit int) ([]portscanblocks.Blocked, int)
+	// DetectionList reports the reported sources not blocked right now, and
+	// whether a block can be installed at all.
+	DetectionList(limit int) ([]portscanblocks.Detected, int, bool)
+
+	// BlockInfo reports one block, or one detection, in detail, and false
+	// when addr is neither blocked nor in the history.
+	BlockInfo(addr netip.Addr) (portscanblocks.Info, bool)
+}
+
+// SetPortScanResponder registers the monitor that answers block requests.
+func (c *Client) SetPortScanResponder(r PortScanResponder) {
+	c.Lock()
+	defer c.Unlock()
+	c.portScan = r
+}
+
+func (c *Client) portScanResponder() PortScanResponder {
+	c.RLock()
+	defer c.RUnlock()
+	return c.portScan
+}
+
+// portScanRequest is the JSON payload of a PORTSCAN_BLOCK notification.
+type portScanRequest struct {
+	IP string `json:"ip"`
+	// Dismiss asks to forget a pending proposal rather than act on it.
+	Dismiss bool `json:"dismiss"`
+	// Force blocks a source whose detection is not enough on its own. Only
+	// PORTSCAN_BLOCK reads it.
+	Force bool `json:"force,omitempty"`
+	// Forget removes the source from the list: its block, if any, is released
+	// and its detection deleted. Only PORTSCAN_UNBLOCK reads it; a daemon that
+	// predates it ignores the field and only releases.
+	Forget bool `json:"forget,omitempty"`
+}
+
+// parsePortScanRequest decodes and validates the payload.
+//
+// The address is parsed here and handed on as a netip.Addr, so a malformed or
+// hostile string can never reach the firewall layer as text.
+func parsePortScanRequest(data string) (netip.Addr, bool, error) {
+	addr, req, err := parsePortScanRequestFull(data)
+	return addr, req.Dismiss, err
+}
+
+func parsePortScanRequestFull(data string) (netip.Addr, portScanRequest, error) {
+	var req portScanRequest
+	if err := json.Unmarshal([]byte(data), &req); err != nil {
+		return netip.Addr{}, req, fmt.Errorf("invalid port scan request payload: %w", err)
+	}
+	addr, err := netip.ParseAddr(req.IP)
+	if err != nil {
+		return netip.Addr{}, req, fmt.Errorf("invalid address %q in port scan request: %w", req.IP, err)
+	}
+	return addr.Unmap(), req, nil
+}
+
+// handleActionPortScanBlock installs a block the user accepted.
+//
+// The daemon re-validates everything: it does not trust the address in the
+// message, and the monitor checks its never-block list again below this
+// point. A user interface asking to block the default gateway must be refused
+// even though the request is well formed -- the question is not whether the
+// GUI is trusted, but that no single message should be able to sever the
+// host's connectivity.
+func (c *Client) handleActionPortScanBlock(stream protocol.UI_NotificationsClient, ntf *protocol.Notification) {
+	r := c.portScanResponder()
+	if r == nil {
+		c.sendNotificationReply(stream, ntf.Type, ntf.Id, "", fmt.Errorf("port scan detection is not running"))
+		return
+	}
+	addr, req, err := parsePortScanRequestFull(ntf.Data)
+	if err != nil {
+		log.Warning("PORTSCAN_BLOCK: %s", err)
+		c.sendNotificationReply(stream, ntf.Type, ntf.Id, "", err)
+		return
+	}
+	if req.Dismiss {
+		r.DismissProposal(addr)
+		c.sendNotificationReply(stream, ntf.Type, ntf.Id, "", nil)
+		return
+	}
+	if err := r.ConfirmBlock(addr, req.Force); err != nil {
+		log.Warning("PORTSCAN_BLOCK %s: %s", addr, err)
+		c.sendNotificationReply(stream, ntf.Type, ntf.Id, "", err)
+		return
+	}
+	if req.Force {
+		log.Important("[port scan] blocking %s at the user's request, on a detection not enough on its own", addr)
+	} else {
+		log.Important("[port scan] blocking %s at the user's request", addr)
+	}
+	c.sendNotificationReply(stream, ntf.Type, ntf.Id, "", nil)
+}
+
+// handleActionPortScanUnblock releases a block early, or, with Forget,
+// removes the source from the list, releasing its block if it has one.
+func (c *Client) handleActionPortScanUnblock(stream protocol.UI_NotificationsClient, ntf *protocol.Notification) {
+	r := c.portScanResponder()
+	if r == nil {
+		c.sendNotificationReply(stream, ntf.Type, ntf.Id, "", fmt.Errorf("port scan detection is not running"))
+		return
+	}
+	addr, req, err := parsePortScanRequestFull(ntf.Data)
+	if err != nil {
+		log.Warning("PORTSCAN_UNBLOCK: %s", err)
+		c.sendNotificationReply(stream, ntf.Type, ntf.Id, "", err)
+		return
+	}
+	if req.Forget {
+		removed, released, err := r.Forget(addr)
+		if err != nil {
+			log.Warning("PORTSCAN_UNBLOCK %s (delete): %s", addr, err)
+			c.sendNotificationReply(stream, ntf.Type, ntf.Id, "", err)
+			return
+		}
+		if !removed {
+			c.sendNotificationReply(stream, ntf.Type, ntf.Id, "",
+				fmt.Errorf("%s is neither blocked nor listed", addr))
+			return
+		}
+		if released {
+			log.Important("[port scan] released the block on %s and removed it from the list at the user's request", addr)
+		} else {
+			log.Important("[port scan] removed %s from the list at the user's request", addr)
+		}
+		c.sendNotificationReply(stream, ntf.Type, ntf.Id, "", nil)
+		return
+	}
+	released, err := r.ReleaseBlock(addr)
+	if err != nil {
+		log.Warning("PORTSCAN_UNBLOCK %s: %s", addr, err)
+		c.sendNotificationReply(stream, ntf.Type, ntf.Id, "", err)
+		return
+	}
+	if !released {
+		// Said as it is, and not logged as a release: nothing was touched.
+		// The block may just have expired, so it is not worth a warning.
+		log.Debug("PORTSCAN_UNBLOCK %s: not blocked", addr)
+		c.sendNotificationReply(stream, ntf.Type, ntf.Id, "", fmt.Errorf("%s is not blocked", addr))
+		return
+	}
+	log.Important("[port scan] released the block on %s", addr)
+	c.sendNotificationReply(stream, ntf.Type, ntf.Id, "", nil)
+}
+
+// handleActionPortScanBlockInfo answers with the details of one block, or of
+// one detection the daemon did not block.
+func (c *Client) handleActionPortScanBlockInfo(stream protocol.UI_NotificationsClient, ntf *protocol.Notification) {
+	r := c.portScanResponder()
+	if r == nil {
+		c.sendNotificationReply(stream, ntf.Type, ntf.Id, "", fmt.Errorf("port scan detection is not running"))
+		return
+	}
+	addr, _, err := parsePortScanRequest(ntf.Data)
+	if err != nil {
+		log.Warning("PORTSCAN_BLOCK_INFO: %s", err)
+		c.sendNotificationReply(stream, ntf.Type, ntf.Id, "", err)
+		return
+	}
+	info, ok := r.BlockInfo(addr)
+	if !ok {
+		c.sendNotificationReply(stream, ntf.Type, ntf.Id, "", fmt.Errorf("%s is neither blocked nor in the detection history", addr))
+		return
+	}
+	data, err := json.Marshal(info)
+	if err != nil {
+		c.sendNotificationReply(stream, ntf.Type, ntf.Id, "", err)
+		return
+	}
+	c.sendNotificationReply(stream, ntf.Type, ntf.Id, string(data), nil)
 }
 
 func (c *Client) sendNotificationReply(stream protocol.UI_NotificationsClient, nType protocol.Action, nID uint64, data string, err error) error {
@@ -331,7 +541,10 @@ func (c *Client) sendNotificationReply(stream protocol.UI_NotificationsClient, n
 		reply.Code = protocol.NotificationReplyCode_ERROR
 		reply.Data = fmt.Sprint(err)
 	}
-	if err := stream.Send(reply); err != nil {
+	c.sendMu.Lock()
+	err = stream.Send(reply)
+	c.sendMu.Unlock()
+	if err != nil {
 		if err == io.EOF {
 			log.Trace("[Notifications] sendNotificationReply, stream channel closed")
 			return nil

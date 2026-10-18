@@ -1,6 +1,8 @@
 package ui
 
 import (
+	"fmt"
+	"strings"
 	"time"
 
 	"github.com/evilsocket/opensnitch/daemon/conman"
@@ -50,9 +52,64 @@ func NewAlert(atype protocol.Alert_Type, what protocol.Alert_What, action protoc
 		}
 	case protocol.Alert_GENERIC:
 		a.Data = &protocol.Alert_Text{data.(string)}
+	case protocol.Alert_PORT_SCAN:
+		switch v := data.(type) {
+		case *protocol.PortScan:
+			a.Portscan = v
+			a.Data = &protocol.Alert_Text{Text: portScanSummary(v, prio == protocol.Alert_HIGH)}
+		case string:
+			a.Data = &protocol.Alert_Text{Text: v}
+		}
 	}
 
 	return a
+}
+
+// portScanSummary is the text a GUI that does not know the PortScan message
+// shows instead of it: an older GUI connected to a newer daemon, which is an
+// ordinary combination (a GUI installed with pip, or one GUI watching several
+// nodes). It names what the event names, and says why no block can be chosen.
+func portScanSummary(p *protocol.PortScan, proposed bool) string {
+	var b strings.Builder
+	fmt.Fprintf(&b, "Inbound port scan from %s", p.SrcIp)
+	if p.Interface != "" {
+		fmt.Fprintf(&b, " on %s", p.Interface)
+	}
+	if p.Method != "" {
+		fmt.Fprintf(&b, ": %s", p.Method)
+	}
+	switch {
+	case p.IsProtocolScan:
+		fmt.Fprintf(&b, ", %d IP protocols", p.Protocols)
+	case p.DistinctPorts > 0:
+		fmt.Fprintf(&b, ", %d ports between %d and %d", p.DistinctPorts, p.MinPort, p.MaxPort)
+	}
+	b.WriteString(".")
+	if proposed {
+		b.WriteString(" Blocking this source can be decided from a GUI that supports port scan detection.")
+	}
+	return b.String()
+}
+
+// SendPortScanAlert reports an inbound port scan to the GUI.
+//
+// The priority is not derived from how alarming the scan looks but from
+// whether the user has something to decide: an alert proposing a block needs
+// an answer, one merely recording a detection does not. Marking every scan
+// critical would train the user to dismiss them, which is how a real one gets
+// missed.
+func (c *Client) SendPortScanAlert(scan *protocol.PortScan, needsAnswer bool) {
+	prio := protocol.Alert_MEDIUM
+	if needsAnswer {
+		prio = protocol.Alert_HIGH
+	}
+	c.PostAlert(
+		protocol.Alert_WARNING,
+		protocol.Alert_PORT_SCAN,
+		protocol.Alert_SHOW_ALERT,
+		prio,
+		scan,
+	)
 }
 
 // SendInfoAlert sends an info alert

@@ -7,6 +7,7 @@ import grpc
 import os
 import sys
 import json
+import time
 import copy
 
 path = os.path.abspath(os.path.dirname(__file__))
@@ -21,6 +22,7 @@ from opensnitch.dialogs.events import StatsDialog
 from opensnitch.plugins import PluginsManager, PluginBase, PluginsList, PluginSignal
 from opensnitch.actions import Actions
 from opensnitch.notifications import DesktopNotifications
+from opensnitch.portscan import BlockInfoPresenter, PortScanPresenter
 from opensnitch.firewall import Rules as FwRules
 from opensnitch.nodes import Nodes
 from opensnitch.config import Config
@@ -51,6 +53,7 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
     _version_warning_trigger = QtCore.pyqtSignal(str, str)
     _status_change_trigger = QtCore.pyqtSignal(bool)
     _notification_callback = QtCore.pyqtSignal(str, ui_pb2.NotificationReply)
+    _port_scan_answer = QtCore.pyqtSignal(str, ui_pb2.NotificationReply)
     _show_message_trigger = QtCore.pyqtSignal(str, str, QtWidgets.QSystemTrayIcon.MessageIcon, int)
     _temp_rule_expired = QtCore.pyqtSignal(str, str)
 
@@ -203,6 +206,7 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
         self._stats_dialog.close_trigger.connect(self._on_close)
         self._show_message_trigger.connect(self._show_systray_message)
         self._temp_rule_expired.connect(self._on_temp_rule_expired)
+        self._port_scan_answer.connect(self._on_port_scan_answer)
 
     def _setup_icons(self):
         self.off_image = QtGui.QPixmap(os.path.join(self._path, "res/icon-off.png"))
@@ -384,6 +388,116 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
         is_local_request = self._is_local_request(proto, addr)
         self._stats_dialog.update(is_local_request, request.stats, main_need_refresh or details_need_refresh)
 
+    def _on_port_scan_alert(self, proto, addr, alert):
+        """Presents an inbound port scan and, when one is offered, the choice
+        to block its source.
+
+        The daemon owns the block: this only sends it the user's answer. A GUI
+        that installed the firewall rule itself would leave a permanent block
+        behind the moment it was closed, and a headless node would have no
+        enforcement at all.
+        """
+        try:
+            scan = alert.portscan
+            title = PortScanPresenter.title(scan)
+            body = PortScanPresenter.body(scan)
+            node = "{0}:{1}".format(proto, addr)
+            if not self._is_local_request(proto, addr):
+                body = "node: {0}\n\n{1}".format(node, body)
+
+            self._db.insert("alerts",
+                            "(time, node, type, action, priority, what, body, status)",
+                            (
+                                datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f"),
+                                node, "WARNING", "", "", "PORT SCAN", body, 0
+                            ))
+
+            needs_answer = (scan.block_eligible
+                            and alert.priority == ui_pb2.Alert.HIGH)
+
+            if not PortScanPresenter.notifications_enabled():
+                return
+
+            # An actionable notification needs the notification server to
+            # support buttons AND a running D-Bus main loop. When either is
+            # missing the scan is still shown, only without the choice: showing
+            # nothing would leave the user unaware of a scan the daemon
+            # detected.
+            if needs_answer and self._desktop_notifications.support_actions():
+                self._show_port_scan_prompt(node, scan, title, body)
+                return
+
+            if needs_answer:
+                body += "\n" + QC.translate(
+                    "portscan",
+                    "Your notification server cannot show buttons, so this scan "
+                    "could not be offered for blocking. Addresses already "
+                    "blocked are listed in the Port scan Detection tab of the main "
+                    "window, where one can also be released.")
+
+            self._show_message_trigger.emit(
+                title, body,
+                QtWidgets.QSystemTrayIcon.MessageIcon.Warning,
+                PortScanPresenter.urgency(scan, needs_answer)
+            )
+        except Exception as e:
+            self.logger.warning("_on_port_scan_alert() exception: %s", repr(e))
+
+    def _show_port_scan_prompt(self, node, scan, title, body):
+        """Shows a notification with a block button and relays the answer."""
+        def _answer(notification, action_id, _data=None):
+            try:
+                dismiss = action_id != DesktopNotifications.ACTION_ID_DROP
+                noti = ui_pb2.Notification(
+                    id=int(str(time.time()).replace(".", "")),
+                    type=ui_pb2.PORTSCAN_BLOCK,
+                    data=PortScanPresenter.block_request(scan.src_ip, dismiss=dismiss))
+                # A block the daemon refuses must be said: sent without a
+                # callback, the refusal would be dropped and the user would
+                # believe the source blocked.
+                self._nodes.send_notification(
+                    node, noti, None if dismiss else self._port_scan_answer)
+            except Exception as ex:
+                self.logger.warning("port scan answer not delivered: %s", repr(ex))
+
+        try:
+            ntf = self._desktop_notifications.ntf2.Notification(
+                title, body, "dialog-warning")
+            ntf.set_urgency(DesktopNotifications.URGENCY_CRITICAL)
+            ntf.set_category(DesktopNotifications.CATEGORY_NETWORK)
+            ntf.add_action(DesktopNotifications.ACTION_ID_DROP,
+                           PortScanPresenter.block_label(scan), _answer)
+            ntf.add_action(DesktopNotifications.ACTION_ID_ALLOW,
+                           QC.translate("portscan", "Ignore"), _answer)
+            ntf.show()
+        except Exception as e:
+            self.logger.warning("_show_port_scan_prompt() exception: %s", repr(e))
+            self._show_message_trigger.emit(
+                title, body,
+                QtWidgets.QSystemTrayIcon.MessageIcon.Warning,
+                DesktopNotifications.URGENCY_CRITICAL)
+
+    @QtCore.pyqtSlot(str, ui_pb2.NotificationReply)
+    def _on_port_scan_answer(self, addr, reply):
+        """Says out loud that a node refused to block a scan source.
+
+        The daemon refuses when it no longer knows the source as a scanner --
+        after a configuration reload or a restart, once the source's state has
+        expired -- or when nftables fails. An applied block needs no message:
+        it appears in the Port scan Detection tab, and under Rules > Port scan blocks.
+        """
+        if reply.code != ui_pb2.ERROR:
+            return
+        self._show_message_trigger.emit(
+            QC.translate("portscan", "Port scan: {node} did not block the source").format(
+                node=PortScanPresenter._clean(addr)),
+            # The daemon's reason, a sentence that names the address: the
+            # alert's 64 characters cut it, and an IPv6 address with it.
+            # detail_text keeps no character markup is made of.
+            BlockInfoPresenter.detail_text(reply.data),
+            QtWidgets.QSystemTrayIcon.MessageIcon.Warning,
+            DesktopNotifications.URGENCY_CRITICAL)
+
     @QtCore.pyqtSlot(str, str, ui_pb2.Alert)
     def _on_new_alert(self, proto, addr, alert):
         # TODO: move to its own module
@@ -395,6 +509,12 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
             if alert.what == ui_pb2.Alert.KERNEL_EVENT:
                 body = "%s\n%s" % (alert.text, alert.proc.path)
                 what = "KERNEL EVENT"
+            elif alert.what == ui_pb2.Alert.PORT_SCAN:
+                # Handled separately: it is the only alert that can carry an
+                # action for the user, and the only one whose wording has to be
+                # careful about what the packets actually establish.
+                self._on_port_scan_alert(proto, addr, alert)
+                return
             if is_local is False:
                 body = "node: {0}:{1}\n\n{2}\n{3}".format(proto, addr, alert.text, alert.proc.path)
 

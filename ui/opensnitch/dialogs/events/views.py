@@ -55,6 +55,7 @@ class ViewsManager(config.ConfigManager, nodes.NodesManager, base.EventsBase):
             constants.TAB_PORTS: False,
             constants.TAB_USERS: False,
             constants.TAB_NETSTAT: False,
+            constants.TAB_PORTSCAN: False,
             constants.TAB_FIREWALL: False,
             constants.TAB_ALERTS: False
         }
@@ -211,6 +212,8 @@ class ViewsManager(config.ConfigManager, nodes.NodesManager, base.EventsBase):
 
     def clear_rows_selection(self):
         cur_idx = self.get_current_view_idx()
+        if self.TABLES[cur_idx]['view'] is None:
+            return
         self.TABLES[cur_idx]['view'].clearSelection()
 
     def are_rows_selected(self):
@@ -267,6 +270,11 @@ class ViewsManager(config.ConfigManager, nodes.NodesManager, base.EventsBase):
 
     def on_filter_line_changed(self, text):
         cur_idx = self.get_current_view_idx()
+        portscan_view = self.get_portscan_view()
+        if portscan_view is not None:
+            self.set_filter_line_color(text)
+            portscan_view.set_filter(text)
+            return
         model = self.TABLES[cur_idx]['view'].model()
         self.set_filter_line_color(text)
 
@@ -611,6 +619,7 @@ class ViewsManager(config.ConfigManager, nodes.NodesManager, base.EventsBase):
 
         self.alertsTable.setVisible(False)
         self.fwTable.setVisible(False)
+        self.rulesPortscanView.setVisible(False)
         self.rulesTable.setVisible(True)
         self.set_current_tab(cur_idx)
 
@@ -624,8 +633,23 @@ class ViewsManager(config.ConfigManager, nodes.NodesManager, base.EventsBase):
 
         return self.TABLES[self.get_current_view_idx()]['view']
 
+    def get_portscan_view(self):
+        """Returns the list of port scan sources if it is what is on screen
+        -- the Port scan Detection tab, or the Rules tab showing "Port scan
+        blocks" -- and None otherwise."""
+        cur_idx = self.get_current_view_idx()
+        if cur_idx == constants.TAB_PORTSCAN:
+            return self.portscanView
+        if cur_idx == constants.TAB_RULES and self.rulesPortscanView.isVisible():
+            return self.rulesPortscanView
+        return None
+
     def refresh_active_table(self):
         cur_idx = self.get_current_view_idx()
+        if self.TABLES[cur_idx]['view'] is None or self.get_portscan_view() is not None:
+            # The list of port scan sources refreshes itself, from the
+            # daemon's pushes; the SQL table behind it is not on screen.
+            return
         model = self.get_active_table().model()
         lastQuery = model.query().lastQuery()
         if "LIMIT" not in lastQuery:
@@ -694,7 +718,7 @@ class ViewsManager(config.ConfigManager, nodes.NodesManager, base.EventsBase):
             rindex = rindex.parent()
         rnum = rindex.row()
 
-        if parent is not None and rnum != constants.RULES_TREE_FIREWALL:
+        if parent is not None and rnum not in (constants.RULES_TREE_FIREWALL, constants.RULES_TREE_PORTSCAN):
             self.queries.set_rules_filter(parent.row(), item_m.row(), item_m.data())
         else:
             # when going back to the rules view, reset selection and select the
