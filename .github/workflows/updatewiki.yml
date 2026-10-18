@@ -1,33 +1,59 @@
 name: Update wiki
 on:
   push:
+    branches:
+    - wiki
     paths:
     - 'wiki/**'
+    - '.github/workflows/updatewiki.yml'
   pull_request:
     paths:
     - 'wiki/**'
+    - '.github/workflows/updatewiki.yml'
+
+permissions:
+  contents: write
+
+# Two merges in a row must not push to the wiki at the same time.
+concurrency:
+  group: update-wiki-${{ github.event_name == 'push' && 'push' || github.ref }}
 
 jobs:
   job1:
     name: Update wiki
     runs-on: ubuntu-latest
+    env:
+      ORG: "evilsocket"
+      REPO_DEST: "opensnitch.wiki"
     steps:
     - name: Clone opensnitch repo
-      uses: actions/checkout@v2
-    - name: Clone wiki repo and update
+      uses: actions/checkout@v4
+
+    # Runs on pull requests too, so that a change which would not apply to the
+    # wiki shows up before it is merged.
+    - name: Clone wiki repo and apply the changes
+      run: |
+        git clone "https://github.com/$ORG/$REPO_DEST.git"
+        # cp rather than mv: mv cannot replace a directory that already exists
+        # in the wiki, such as images/.
+        cp -R wiki/. "$REPO_DEST/"
+        cd "$REPO_DEST"
+        git add .
+        git status --short
+
+    # A pull request from a fork only gets a read-only token, and a fork has no
+    # business writing to this wiki.
+    - name: Push to the wiki
+      if: github.event_name == 'push' && github.repository == 'evilsocket/opensnitch'
       env:
-        ORG: "evilsocket"
-        REPO_SOURCE: "opensnitch"
-        REPO_DEST: "opensnitch.wiki"
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
-        GH_REPO_DEST="github.com/$ORG/$REPO_DEST.git"
-        git clone https://$GH_REPO_DEST
-        mv -f wiki/* $REPO_DEST/
-        cd $REPO_DEST
-        git config --global user.email "wiki.updater@opensnitch.github"
-        git config --global user.name "wiki auto updater"
-        git add .
+        cd "$REPO_DEST"
+        if git diff --cached --quiet; then
+          echo "The wiki is already up to date."
+          exit 0
+        fi
+        git config user.email "wiki.updater@opensnitch.github"
+        git config user.name "wiki auto updater"
         git commit -m "updated after opensnitch repo commit $GITHUB_SHA"
-        git remote add origin-wiki "https://$ORG:$GITHUB_TOKEN@$GH_REPO_DEST"
-        git push origin-wiki master
+        git push "https://$ORG:$GITHUB_TOKEN@github.com/$ORG/$REPO_DEST.git" HEAD:master
