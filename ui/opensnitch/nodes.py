@@ -236,12 +236,29 @@ class Nodes(QObject):
         return client_config
 
     def get_addr(self, peer):
+        """Splits a gRPC peer, or a node key, into (protocol, address).
+
+        The port is dropped, so that a node reconnecting from another port
+        keeps its identity, but the address is kept whole. grpcio reports an
+        IPv6 peer as "ipv6:%5B2001:db8::2%5D:port" (the brackets
+        percent-encoded): splitting it on every colon kept "%5B2001", so every
+        IPv6 node whose address starts with the same group became one node.
+        A node key, which has no port, comes back unchanged.
+        """
         try:
-            peer = peer.split(":")
+            proto, _, addr = peer.partition(":")
             # WA for backward compatibility
-            if peer[0] == "unix" and peer[1] == "":
-                peer[1] = "/local"
-            return peer[0], peer[1]
+            if proto == "unix" and addr == "":
+                addr = "/local"
+            elif proto == "ipv6":
+                for close in ("%5D", "]"):
+                    end = addr.find(close)
+                    if end != -1:
+                        addr = addr[:end + len(close)]
+                        break
+            elif proto == "ipv4":
+                addr = addr.split(":")[0]
+            return proto, addr
         except Exception as e:
             self.logger.warning("error getting addr %s: %s", repr(peer), repr(e))
             return peer
