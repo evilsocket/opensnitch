@@ -47,16 +47,42 @@ func initConfig(config interface{}) (*monConfig, error) {
 		return nil, fmt.Errorf("[sockmon] invalid config received: %v", config)
 	}
 	var newCfg monConfig
-	newCfg.Interval = cfg["interval"].(string)
-	newCfg.State = uint8(cfg["state"].(float64))
-	newCfg.Proto = uint8(cfg["proto"].(float64))
-	newCfg.Family = uint8(cfg["family"].(float64))
+	var err error
+	// These came straight off the wire from the GUI. A missing field, or one
+	// of the wrong JSON type, used to panic the type assertion and take the
+	// whole daemon down; now it is a config error the caller can report.
+	if v, ok := cfg["interval"].(string); ok {
+		newCfg.Interval = v
+	}
+	if newCfg.State, err = cfgUint8(cfg, "state"); err != nil {
+		return nil, err
+	}
+	if newCfg.Proto, err = cfgUint8(cfg, "proto"); err != nil {
+		return nil, err
+	}
+	if newCfg.Family, err = cfgUint8(cfg, "family"); err != nil {
+		return nil, err
+	}
 
 	if newCfg.Interval == "" {
 		newCfg.Interval = "5s"
 	}
 
 	return &newCfg, nil
+}
+
+// cfgUint8 reads a numeric field from the decoded JSON config. encoding/json
+// decodes every number as float64, so that is the only valid dynamic type.
+func cfgUint8(cfg map[string]interface{}, key string) (uint8, error) {
+	v, ok := cfg[key]
+	if !ok {
+		return 0, fmt.Errorf("[sockmon] missing %q in config", key)
+	}
+	f, ok := v.(float64)
+	if !ok {
+		return 0, fmt.Errorf("[sockmon] %q must be a number, got %T", key, v)
+	}
+	return uint8(f), nil
 }
 
 // New returns a new SocketsMonitor
