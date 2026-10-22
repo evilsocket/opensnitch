@@ -65,8 +65,8 @@ class TestPreferences():
         self.run(qtbot)
 
         assert self.prefs.cfgMgr.getBool(self.prefs.cfgMgr.DEFAULT_IGNORE_RULES) == True and  self.prefs.cfgMgr.getInt(self.prefs.cfgMgr.DEFAULT_IGNORE_TEMPORARY_RULES) == 1
-        cols = self.prefs.cfgMgr.getSettings(Config.STATS_SHOW_COLUMNS)
-        # Column indices changed since original test - just verify columns are saved
+        # The UI save writes the connections column list under this key.
+        cols = self.prefs.cfgMgr.getSettings(Config.STATS_SHOW_COLUMNS + "_connections")
         assert cols is not None and len(cols) > 0
 
     def test_save_node_settings(self, qtbot, capsys):
@@ -76,7 +76,7 @@ class TestPreferences():
         self.prefs.checkNodeLogUTC.setChecked(False)
         self.prefs.checkNodeLogMicro.setChecked(True)
         self.prefs.checkInterceptUnknown.setChecked(True)
-        self.prefs.tabWidget.setCurrentIndex(self.prefs.TAB_NODES)
+        self.prefs.stackedWidget.setCurrentIndex(self.prefs.TAB_NODES)
         self.prefs._node_needs_update = True
 
         self.run(qtbot)
@@ -162,7 +162,7 @@ class TestPreferences():
         original_timeout = self.prefs.cfgMgr.getInt(self.prefs.cfgMgr.DEFAULT_TIMEOUT_KEY, 15)
 
         # Make changes
-        self.prefs.comboUIAction.setCurrentIndex(Config.ACTION_DENY_IDX)
+        self.prefs.comboUIAction.setCurrentIndex(Config.ACTION_DROP_IDX)
         self.prefs.spinUITimeout.setValue(99)
 
         # This test needs exec() to verify cancel closes dialog without saving.
@@ -352,12 +352,12 @@ class TestPreferences():
         """Test saving deny action."""
         qtbot.addWidget(self.prefs)
 
-        self.prefs.comboUIAction.setCurrentIndex(Config.ACTION_DENY_IDX)
+        self.prefs.comboUIAction.setCurrentIndex(Config.ACTION_DROP_IDX)
 
         self.run(qtbot)
 
-        assert self.prefs.cfgMgr.getInt(self.prefs.cfgMgr.DEFAULT_ACTION_KEY) == Config.ACTION_DENY_IDX
-        assert self.prefs.comboUIAction.currentText() == Config.ACTION_DENY
+        assert self.prefs.cfgMgr.getInt(self.prefs.cfgMgr.DEFAULT_ACTION_KEY) == Config.ACTION_DROP_IDX
+        assert self.prefs.comboUIAction.currentText() == Config.ACTION_DROP
 
     def test_action_reject_setting(self, qtbot):
         """Test saving reject action."""
