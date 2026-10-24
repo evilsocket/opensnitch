@@ -27,6 +27,7 @@ type TaskManager struct {
 	Ctx         context.Context
 	Cancel      context.CancelFunc
 	tasks       map[string]base.Task
+	cancels     map[string]context.CancelFunc
 	TaskAdded   chan EventTask
 	TaskRemoved chan EventTask
 
@@ -37,6 +38,7 @@ type TaskManager struct {
 func NewTaskManager() *TaskManager {
 	tm := &TaskManager{
 		tasks:       make(map[string]base.Task),
+		cancels:     make(map[string]context.CancelFunc),
 		TaskAdded:   make(chan EventTask),
 		TaskRemoved: make(chan EventTask),
 	}
@@ -63,6 +65,11 @@ func (tm *TaskManager) AddTask(name string, task base.Task) (context.Context, er
 	log.Important("[tasks] Adding task: %s", name)
 	tm.tasks[name] = task
 	ctx, cancel := context.WithCancel(context.Background())
+	// Keep the cancel so RemoveTask can end this task's goroutine. Without it,
+	// Stop() alone left the AddTask goroutine (and the task's own ticker)
+	// running until the whole manager's context was cancelled, and a
+	// remove-before-start race left the task running with nothing tracking it.
+	tm.cancels[name] = cancel
 	go func(ctx context.Context, cancel context.CancelFunc) {
 		defer cancel()
 
@@ -108,15 +115,21 @@ func (tm *TaskManager) RemoveTask(name string) error {
 	tk.Stop()
 
 	delete(tm.tasks, name)
+	// Cancel the task's context so its AddTask goroutine exits now, instead of
+	// lingering until the manager stops.
+	if cancel, ok := tm.cancels[name]; ok {
+		cancel()
+		delete(tm.cancels, name)
+	}
 	return nil
 }
 
 // PauseAll pauses all tasks that don't need to run while the daemon is
 // disconnected from the GUI (server).
 // Things to take into account:
-//  - The GUI may have been closed, therefore, the GUI won't have the id of the
-//    paused notifications. So when we resume the tasks, the GUI won't know
-//    about those notifications.
+//   - The GUI may have been closed, therefore, the GUI won't have the id of the
+//     paused notifications. So when we resume the tasks, the GUI won't know
+//     about those notifications.
 func (tm *TaskManager) PauseAll() {
 	for name, task := range tm.tasks {
 		log.Debug("[tasks] Pausing task %s", name)
