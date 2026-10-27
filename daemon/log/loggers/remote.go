@@ -86,7 +86,7 @@ func NewRemote(cfg LoggerConfig) (*Remote, error) {
 	if cfg.Format == formats.RFC3164 {
 		sys.logFormat = formats.NewRfc3164()
 	} else if cfg.Format == formats.JSON {
-		sys.logFormat = formats.NewJSON()
+		sys.logFormat = formats.NewJSON(cfg.IncludeProcessEnv)
 	} else if cfg.Format == formats.CSV {
 		sys.logFormat = formats.NewCSV()
 	}

@@ -47,6 +47,11 @@ type LoggerConfig struct {
 	// MaxConnectAttempts holds the max attemps to connect to the remote server.
 	// A value of 0 will try to connect indefinitely.
 	MaxConnectAttempts uint16
+
+	// IncludeProcessEnv adds the environment variables of the process to the
+	// events (json format only). Disabled by default, because they may
+	// contain secrets.
+	IncludeProcessEnv bool
 }
 
 // LoggerManager represents the LoggerManager.
