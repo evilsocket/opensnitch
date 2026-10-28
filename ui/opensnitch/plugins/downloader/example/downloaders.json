@@ -44,10 +44,10 @@
                           "localfile": "/tmp/blocklist/frog-firstparty.txt"
                       },
                       {
-                          "name": "urlhaus",
+                          "name": "netapi compromised",
                           "enabled": true,
-                          "remote": "https://urlhaus.abuse.ch/downloads/hostfile/",
-                          "localfile": "/tmp/blocklist/urlhaus-hosts.txt"
+                          "remote": "https://netapi.com/api2/?method=compromised&dataset_type=url&format=hosts",
+                          "localfile": "/tmp/blocklist/netapi-compromised-hosts.txt"
                       },
                       {
                           "name": "pgl.yoyo.org",
