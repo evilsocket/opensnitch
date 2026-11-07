@@ -222,6 +222,38 @@ func SocketGet(family uint8, proto uint8, srcPort, dstPort uint16, local, remote
 	return netlinkRequest(sockReq, family, proto, srcPort, dstPort, local, remote)
 }
 
+// SocketGetExact asks the kernel for the socket of an exact 4-tuple without
+// NLM_F_DUMP, so the kernel looks it up in its socket hash tables instead of
+// walking all of them. It fails when the kernel has no such socket.
+func SocketGetExact(family uint8, proto uint8, srcPort, dstPort uint16, local, remote net.IP) (*Socket, error) {
+	sockReq := &SocketRequest{
+		Family:   family,
+		Protocol: proto,
+		States:   TCP_ALL,
+		ID: SocketID{
+			Source:          local,
+			Destination:     remote,
+			SourcePort:      srcPort,
+			DestinationPort: dstPort,
+			Cookie:          [2]uint32{nl.TCPDIAG_NOCOOKIE, nl.TCPDIAG_NOCOOKIE},
+		},
+	}
+	req := nl.NewNetlinkRequest(nl.SOCK_DIAG_BY_FAMILY, syscall.NLM_F_REQUEST)
+	req.AddData(sockReq)
+	msgs, err := req.Execute(syscall.NETLINK_INET_DIAG, 0)
+	if err != nil {
+		return nil, err
+	}
+	if len(msgs) != 1 {
+		return nil, fmt.Errorf("exact socket lookup: %d replies", len(msgs))
+	}
+	s := &Socket{}
+	if err := s.deserialize(msgs[0]); err != nil {
+		return nil, err
+	}
+	return s, nil
+}
+
 // SocketsDump returns the list of all connections from the kernel
 func SocketsDump(family uint8, proto uint8) ([]*Socket, error) {
 	sockReq := &SocketRequest{

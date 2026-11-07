@@ -47,6 +47,42 @@ func GetSocketInfo(proto string, srcIP net.IP, srcPort uint, dstIP net.IP, dstPo
 	if protoLen >= 4 && proto[:4] == "icmp" {
 		ipproto = syscall.IPPROTO_RAW
 	}
+	if sock := exactTCPSocket(family, ipproto, srcIP, srcPort, dstIP, dstPort); sock != nil {
+		if sock.UID != 0xffffffff {
+			uid = int(sock.UID)
+		}
+		return uid, []int{int(sock.INode)}
+	}
+	return socketInfoFromDump(family, ipproto, srcIP, srcPort, dstIP, dstPort)
+}
+
+// socketGetExact is the exact lookup GetSocketInfo uses; tests replace it.
+var socketGetExact = SocketGetExact
+
+// exactTCPSocket asks the kernel for the one socket of a connected TCP
+// 4-tuple, instead of dumping every socket on the source port. It returns nil
+// when GetSocketInfo must use the dump: not TCP, a wildcard or non-unicast
+// address, a lookup error or miss, or a reply that is not exactly this
+// connection in this family (the kernel lookup can also return a listening
+// socket, or a dual-stack socket that the dump of this family does not list).
+func exactTCPSocket(family, proto uint8, srcIP net.IP, srcPort uint, dstIP net.IP, dstPort uint) *Socket {
+	if proto != syscall.IPPROTO_TCP || srcPort == 0 || srcPort > 0xffff || dstPort == 0 || dstPort > 0xffff ||
+		srcIP == nil || srcIP.IsUnspecified() || !(dstIP.IsGlobalUnicast() || dstIP.IsLoopback()) {
+		return nil
+	}
+	sock, err := socketGetExact(family, proto, uint16(srcPort), uint16(dstPort), srcIP, dstIP)
+	if err != nil || sock == nil || sock.Family != family || sock.INode == 0 ||
+		sock.ID.SourcePort != uint16(srcPort) || !sock.ID.Source.Equal(srcIP) ||
+		sock.ID.DestinationPort != uint16(dstPort) || !sock.ID.Destination.Equal(dstIP) {
+		return nil
+	}
+	return sock
+}
+
+// socketInfoFromDump looks the connection up in a dump of the sockets on its
+// source port, handling the special cases described in GetSocketInfo.
+func socketInfoFromDump(family, ipproto uint8, srcIP net.IP, srcPort uint, dstIP net.IP, dstPort uint) (uid int, inodes []int) {
+	uid = -1
 	if sockList, err := SocketGet(family, ipproto, uint16(srcPort), uint16(dstPort), srcIP, dstIP); err == nil {
 		for n, sock := range sockList {
 			if sock.UID != 0xffffffff {
