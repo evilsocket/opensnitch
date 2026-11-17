@@ -427,11 +427,25 @@ class GenericTableView(QTableView):
         self.keySelectAll = False
 
     def refresh(self):
+        # refreshing the viewport drops currentIndex, so keyboard navigation
+        # would lose its position every time the view is refreshed.
+        curIdx = self.selectionModel().currentIndex()
+        curText = self.model().index(curIdx.row(), self.trackingCol).data() if curIdx.isValid() else None
+
         self.calculateRowsInViewport()
         self.model().setRowCount(min(self.maxRowsInViewport, self.model().totalRowCount))
         self.model().refreshViewport(self.vScrollBar.value(), self.maxRowsInViewport, force=True)
         # Note: on PyQt6 we need to update the viewport explicitely.
         self.viewport().update()
+
+        if curText is None:
+            return
+        items = self.model().findItems(curText, column=self.trackingCol)
+        if len(items) > 0:
+            self.selectionModel().setCurrentIndex(
+                items[0].index(),
+                QItemSelectionModel.SelectionFlag.NoUpdate
+            )
 
     def forceViewRefresh(self):
         return (self.vScrollBar.minimum() == self.vScrollBar.value() or self.vScrollBar.maximum() == self.vScrollBar.value())
@@ -537,23 +551,26 @@ class GenericTableView(QTableView):
     def mousePressEvent(self, event):
         # we need to call upper class to paint selections properly
         super().mousePressEvent(event)
-        self.mousePressed = True
         rightBtnPressed = event.button() != Qt.MouseButton.LeftButton
+        self.mousePressed = not rightBtnPressed
 
         self.keySelectAll = False
 
         pos = event.pos()
         item = self.indexAt(pos)
         row = self.rowAt(pos.y())
-        if item is None:
-            return
 
         # FIXME: one column is not enough to uniquely identify rows.
         # for example, we may have the same rule on different nodes, but we'll
         # still use only the name of the rule, so we end up selecting multiple
         # rows.
         clickedItem = self.model().index(row, self.trackingCol)
-        if clickedItem.data() is None:
+        if not item.isValid() or clickedItem.data() is None:
+            # Qt clears the visual selection when pressing on an empty
+            # area; keep the tracked selection in sync, otherwise menu
+            # actions keep operating on rows no longer highlighted.
+            if not self.ctrlPressed:
+                self._rows_selection.clear()
             return
 
         flags = QItemSelectionModel.SelectionFlag.Rows | QItemSelectionModel.SelectionFlag.SelectCurrent
