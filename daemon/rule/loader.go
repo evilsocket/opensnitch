@@ -208,7 +208,34 @@ func (l *Loader) Save(rule *Rule, path string) error {
 		return fmt.Errorf("Error while saving rule %s to %s: %s", rule, path, err)
 	}
 
-	if err = ioutil.WriteFile(path, raw, 0600); err != nil {
+	// Write to a temporary file in the same directory and rename it over the
+	// target, so a crash or power loss mid-write can never leave a truncated
+	// (e.g. zero-byte) rule file that fails to load on the next start.
+	tmp, err := os.CreateTemp(filepath.Dir(path), "."+filepath.Base(path)+".tmp-*")
+	if err != nil {
+		return fmt.Errorf("Error while saving rule %s to %s: %s", rule, path, err)
+	}
+	tmpPath := tmp.Name()
+	cleanup := func(e error) error {
+		tmp.Close()
+		os.Remove(tmpPath)
+		return fmt.Errorf("Error while saving rule %s to %s: %s", rule, path, e)
+	}
+	if err = tmp.Chmod(0600); err != nil {
+		return cleanup(err)
+	}
+	if _, err = tmp.Write(raw); err != nil {
+		return cleanup(err)
+	}
+	if err = tmp.Sync(); err != nil {
+		return cleanup(err)
+	}
+	if err = tmp.Close(); err != nil {
+		os.Remove(tmpPath)
+		return fmt.Errorf("Error while saving rule %s to %s: %s", rule, path, err)
+	}
+	if err = os.Rename(tmpPath, path); err != nil {
+		os.Remove(tmpPath)
 		return fmt.Errorf("Error while saving rule %s to %s: %s", rule, path, err)
 	}
 
