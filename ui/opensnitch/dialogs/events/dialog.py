@@ -17,6 +17,8 @@ from opensnitch.customwidgets.firewalltableview import FirewallTableModel
 from opensnitch.customwidgets.generictableview import GenericTableModel
 from opensnitch.customwidgets.addresstablemodel import AddressTableModel
 from opensnitch.customwidgets.netstattablemodel import NetstatTableModel
+from opensnitch.customwidgets.dashboard import DashboardWidget
+from opensnitch.customwidgets.worldmap import WorldMapWidget
 from opensnitch.utils import Message, QuickHelp, AsnDB, Icons
 from opensnitch.utils.infowindow import InfoWindow
 from opensnitch.utils.xdg import xdg_current_desktop
@@ -48,6 +50,7 @@ class StatsDialog(menus.MenusManager, menu_actions.MenuActions, views.ViewsManag
     _shown_trigger = QtCore.pyqtSignal()
     _notification_trigger = QtCore.pyqtSignal(ui_pb2.Notification)
     _notification_callback = QtCore.pyqtSignal(str, ui_pb2.NotificationReply)
+    _map_connection_trigger = QtCore.pyqtSignal(str, str, str, str, str)
 
     # FIXME: don't translate, used only for default argument on _update_status_label
     FIREWALL_DISABLED = "Disabled"
@@ -97,7 +100,22 @@ class StatsDialog(menus.MenusManager, menu_actions.MenuActions, views.ViewsManag
         #self._prefs_dialog = PreferencesDialog(appicon=appicon)
         #self._prefs_dialog.saved.connect(self._on_settings_saved)
         self._rules_dialog = RulesEditorDialog(appicon=appicon)
+
+        # Dashboard cards — insert between toolbar (row 0) and tabs (row 1)
+        self._dashboard = DashboardWidget()
+        self._dashboard_min_width = 500
+        self.gridLayout_4.removeWidget(self.tabWidget)
+        self.gridLayout_4.addWidget(self._dashboard, 1, 0)
+        self.gridLayout_4.addWidget(self.tabWidget, 2, 0)
+
+        # World Map tab
+        self._world_map = WorldMapWidget()
+        map_icon = Icons.new(self, "network-workgroup") if hasattr(Icons, 'new') else QtGui.QIcon()
+        self.tabWidget.addTab(self._world_map, map_icon, "World Map")
+        self._map_tab_idx = self.tabWidget.count() - 1
+
         self._trigger.connect(self._on_update_triggered)
+        self._map_connection_trigger.connect(self._on_map_connection)
         self._notification_callback.connect(self._cb_notification_callback)
 
         self.tabWidget.setContextMenuPolicy(QtCore.Qt.ContextMenuPolicy.CustomContextMenu)
@@ -1370,10 +1388,17 @@ class StatsDialog(menus.MenusManager, menu_actions.MenuActions, views.ViewsManag
         nodes = self.nodes_count()
         self.daemonVerLabel.setText(self._stats.daemon_version)
         if nodes <= 1:
-            self.uptimeLabel.setText(str(datetime.timedelta(seconds=self._stats.uptime)))
+            uptime_str = str(datetime.timedelta(seconds=self._stats.uptime))
+            self.uptimeLabel.setText(uptime_str)
             self.rulesLabel.setText("%s" % self._stats.rules)
             self.consLabel.setText("%s" % self._stats.connections)
             self.droppedLabel.setText("%s" % self._stats.dropped)
+
+            self._dashboard.update_stats(
+                connections=self._stats.connections,
+                dropped=self._stats.dropped,
+                uptime=uptime_str
+            )
         else:
             self.uptimeLabel.setText("")
             self.rulesLabel.setText("")
@@ -1383,6 +1408,21 @@ class StatsDialog(menus.MenusManager, menu_actions.MenuActions, views.ViewsManag
         if need_query_update and not self.are_rows_selected():
             self.refresh_active_table()
             self._last_update = datetime.datetime.now()
+
+    @QtCore.pyqtSlot(str, str, str, str, str)
+    def _on_map_connection(self, conn_id, dst_ip, action, process, dst_host):
+        try:
+            self._world_map.add_connection(conn_id, dst_ip, action, process, dst_host)
+        except Exception:
+            pass
+
+    def add_map_connection(self, conn_id, dst_ip, action, process, dst_host=""):
+        self._map_connection_trigger.emit(conn_id, dst_ip, action, process, dst_host)
+
+    def resizeEvent(self, event):
+        super().resizeEvent(event)
+        if hasattr(self, '_dashboard'):
+            self._dashboard.setVisible(self.width() >= self._dashboard_min_width)
 
     # prevent a click on the window's x
     # from quitting the whole application
