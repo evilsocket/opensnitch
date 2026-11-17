@@ -237,6 +237,36 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
         self._menu_enable_fw.triggered.connect(self._on_enable_interception_clicked)
 
         self._menu.addSeparator()
+
+        # Mode profiles submenu
+        self._mode_menu = self._menu.addMenu("Mode")
+        self._mode_group = QtGui.QActionGroup(self._mode_menu)
+        self._mode_group.setExclusive(True)
+
+        self._mode_ask = self._mode_menu.addAction("Ask (Default)")
+        self._mode_ask.setCheckable(True)
+        self._mode_ask.setActionGroup(self._mode_group)
+        self._mode_ask.triggered.connect(lambda: self._on_mode_changed(Config.ACTION_DROP_IDX))
+
+        self._mode_allow = self._mode_menu.addAction("Allow All")
+        self._mode_allow.setCheckable(True)
+        self._mode_allow.setActionGroup(self._mode_group)
+        self._mode_allow.triggered.connect(lambda: self._on_mode_changed(Config.ACTION_ALLOW_IDX))
+
+        self._mode_deny = self._mode_menu.addAction("Deny All")
+        self._mode_deny.setCheckable(True)
+        self._mode_deny.setActionGroup(self._mode_group)
+        self._mode_deny.triggered.connect(lambda: self._on_mode_changed(Config.ACTION_REJECT_IDX))
+
+        current_action = self._cfg.getInt(Config.DEFAULT_ACTION_KEY, Config.ACTION_DROP_IDX)
+        if current_action == Config.ACTION_ALLOW_IDX:
+            self._mode_allow.setChecked(True)
+        elif current_action == Config.ACTION_REJECT_IDX:
+            self._mode_deny.setChecked(True)
+        else:
+            self._mode_ask.setChecked(True)
+
+        self._menu.addSeparator()
         self._menu_autostart = self._menu.addAction("Autostart")
         self._menu_autostart.setCheckable(True)
         self._menu_autostart.setChecked(self._autostart.isEnabled())
@@ -249,6 +279,23 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
         self._menu.addAction(self.MENU_ENTRY_QUIT).triggered.connect(self._on_close)
 
         self._menu.aboutToShow.connect(self._on_show_menu)
+
+    def _on_mode_changed(self, action_idx):
+        self._cfg.setSettings(Config.DEFAULT_ACTION_KEY, action_idx)
+        mode_names = {
+            Config.ACTION_DROP_IDX: "Ask",
+            Config.ACTION_ALLOW_IDX: "Allow All",
+            Config.ACTION_REJECT_IDX: "Deny All",
+        }
+        mode_name = mode_names.get(action_idx, "Ask")
+        has_ntfs, ntfs_type = self._has_desktop_notifications()
+        if has_ntfs:
+            self.show_systray_msg(
+                "OpenSnitch",
+                f"Mode changed to: {mode_name}",
+                mtype=ntfs_type,
+                timeout=3
+            )
 
     def _on_switch_autostart(self):
         try:
@@ -265,6 +312,10 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
 
     def _on_show_menu(self):
         self._menu_autostart.setChecked(self._autostart.isEnabled())
+        current_action = self._cfg.getInt(Config.DEFAULT_ACTION_KEY, Config.ACTION_DROP_IDX)
+        self._mode_ask.setChecked(current_action == Config.ACTION_DROP_IDX)
+        self._mode_allow.setChecked(current_action == Config.ACTION_ALLOW_IDX)
+        self._mode_deny.setChecked(current_action == Config.ACTION_REJECT_IDX)
 
     def _show_gui_if_tray_not_available(self):
         """If the system tray is not available or ready, show the GUI after
@@ -748,6 +799,17 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
                     event.rule.name,
                     peer
                 )
+                try:
+                    proc_name = os.path.basename(event.connection.process_path.split()[0]) if event.connection.process_path else ""
+                    self._stats_dialog.add_map_connection(
+                        str(event.unixnano),
+                        event.connection.dst_ip,
+                        event.rule.action,
+                        proc_name,
+                        event.connection.dst_host
+                    )
+                except Exception:
+                    pass
             db.commit()
 
             details_need_refresh = self._populate_stats_details(db, addr, stats)
