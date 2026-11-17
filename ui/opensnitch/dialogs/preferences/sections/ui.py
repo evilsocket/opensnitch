@@ -19,6 +19,7 @@ def load_langs(win):
 
 
 def load_themes(win):
+    from opensnitch.utils.themes import Themes
     win.comboUITheme.blockSignals(True)
     theme_idx, win.saved_theme, theme_density = win.themes.get_saved_theme()
     if win.saved_theme == "":
@@ -28,11 +29,14 @@ def load_themes(win):
     win.labelThemeError.setText("")
     win.comboUITheme.clear()
     win.comboUITheme.addItem(QC.translate("preferences", "System"), "System")
-    if win.themes.available():
-        themes = win.themes.list_themes()
-        for t in themes:
+    themes = win.themes.list_themes()
+    for t in themes:
+        if t in Themes.BUILTIN_THEMES:
+            win.comboUITheme.addItem(Themes.BUILTIN_THEMES[t], t)
+        else:
             win.comboUITheme.addItem(os.path.basename(t), t)
-    else:
+
+    if not win.themes.available() and not themes:
         win.labelThemeError.setStyleSheet('color: red')
         win.labelThemeError.setVisible(True)
         win.labelThemeError.setText(QC.translate("preferences", "Themes not available. Install qt-material: pip3 install qt-material"))
@@ -58,10 +62,11 @@ def change_theme(win):
     win.themes.change_theme(win, thm_name, extra_opts)
 
 def show_ui_density_widgets(win, idx):
-    """show ui density widget only for qt-material themes:
-        https://github.com/UN-GCPDS/qt-material?tab=readme-ov-file#density-scale
-    """
-    hidden = idx == 0
+    """show ui density widget only for qt-material themes (not built-in or system)."""
+    from opensnitch.utils.themes import Themes
+    thm_data = win.comboUITheme.itemData(idx) if idx > 0 else ""
+    is_builtin = thm_data in Themes.BUILTIN_THEMES
+    hidden = idx == 0 or is_builtin
     win.labelUIDensity.setHidden(hidden)
     win.spinUIDensity.setHidden(hidden)
     win.cmdUIDensityUp.setHidden(hidden)
