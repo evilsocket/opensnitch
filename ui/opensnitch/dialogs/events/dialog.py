@@ -592,6 +592,9 @@ class StatsDialog(menus.MenusManager, menu_actions.MenuActions, views.ViewsManag
         self._add_rulesTree_fw_chains()
 
     def _cb_app_rules_updated(self, what):
+        # the views are refreshed when the dialog is shown.
+        if not self.isVisible():
+            return
         self.refresh_active_table()
 
     def _cb_nodes_updated(self, count):

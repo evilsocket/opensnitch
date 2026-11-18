@@ -35,6 +35,10 @@ class GenericTableModel(QStandardItemModel):
     prevQueryStr = ''
     # modified query object
     realQuery = QSqlQuery()
+    # set when the query changes, to force the next viewport refresh.
+    # Otherwise the view would keep displaying the rows of the previous
+    # query when the scrollbar is not at the top/bottom of the view.
+    forceNextRefresh = False
 
     items = []
     lastItems = []
@@ -185,6 +189,7 @@ class GenericTableModel(QStandardItemModel):
 
         if self.prevQueryStr != self.origQueryStr:
             self.realQuery = tmpQuery
+            self.forceNextRefresh = True
 
         self.update_row_count()
         self.update_col_count()
@@ -217,6 +222,9 @@ class GenericTableModel(QStandardItemModel):
         force var will force a refresh if the scrollbar is at the top or bottom of the
         viewport, otherwise skip it to allow rows analyzing without refreshing.
         """
+        if self.forceNextRefresh:
+            force = True
+            self.forceNextRefresh = False
         if not force:
             return
 
@@ -322,6 +330,10 @@ class GenericTableModel(QStandardItemModel):
 class GenericTableView(QTableView):
     vScrollBar = None
 
+    # max number of rows added/removed since the last viewport refresh that
+    # we look for when selecting ranges of rows from the db.
+    MAX_VIEWPORT_DRIFT = 1000
+
     class Signals(QObject):
         paginateEvent = pyqtSignal(int, int)
 
@@ -396,12 +408,19 @@ class GenericTableView(QTableView):
             cols.append(c.data())
         return cols
 
-    def selectDbRows(self, first, last):
-        """get rows range from the db"""
+    def selectDbRows(self, first, last, fromTop=False):
+        """get rows range from the db.
+        fromTop: the range starts at the first row of the table.
+        """
         # dumpRows() already take into account the OFFSET, so first and last must
         # be relative.
         offset = self.model().queryOffset
         limit = self.model().queryLimit
+        if first != QSql.Location.BeforeFirstRow.value or last != QSql.Location.AfterLastRow.value:
+            drift = self._getViewportDrift()
+            if not fromTop:
+                first += drift
+            last += drift
         selrows = self.model().dumpRows(nolimits=True, first_row=first, last_row=last)
         if selrows is None:
             return
@@ -410,6 +429,43 @@ class GenericTableView(QTableView):
             key = row[self.trackingCol]
             self._rows_selection.add(key)
         self.selectIndices()
+
+    def _getViewportDrift(self):
+        """Get how many positions the displayed rows have moved in the db
+        since the last viewport refresh.
+        The rows range to select is calculated from the displayed rows, but
+        it's obtained from the db, where new rows may have been added (new
+        events on top) or deleted in the meantime. Without taking it into
+        account, the selected rows are shifted up or down.
+        """
+        displayed = [row[self.trackingCol] for row in self.model().items]
+        if len(displayed) == 0:
+            return 0
+        # the rows labels are the positions of the rows in the db, starting from 1
+        topPos = int(self.model().headerData(0, Qt.Orientation.Vertical)) - 1
+        firstPos = max(0, topPos - self.MAX_VIEWPORT_DRIFT)
+        rows = self.model().dumpRows(
+            nolimits=True,
+            first_row=firstPos-1,
+            last_row=topPos + self.MAX_VIEWPORT_DRIFT + len(displayed)
+        )
+        if rows is None:
+            return 0
+        # the displayed values are strings
+        current = ["" if row[self.trackingCol] is None else str(row[self.trackingCol]) for row in rows]
+
+        # the tracking column may have duplicated values, so match all the
+        # displayed rows, and use the closest match to the expected position.
+        drift = None
+        for pos in range(0, len(current) - len(displayed) + 1):
+            if current[pos:pos+len(displayed)] != displayed:
+                continue
+            newDrift = firstPos + pos - topPos
+            if drift is None or abs(newDrift) < abs(drift):
+                drift = newDrift
+        if drift is None:
+            return 0
+        return drift
 
     def getMinViewportRow(self):
         """get the first row of the viewport. Starts from 1"""
@@ -427,11 +483,25 @@ class GenericTableView(QTableView):
         self.keySelectAll = False
 
     def refresh(self):
+        # refreshing the viewport drops currentIndex, so keyboard navigation
+        # would lose its position every time the view is refreshed.
+        curIdx = self.selectionModel().currentIndex()
+        curText = self.model().index(curIdx.row(), self.trackingCol).data() if curIdx.isValid() else None
+
         self.calculateRowsInViewport()
         self.model().setRowCount(min(self.maxRowsInViewport, self.model().totalRowCount))
         self.model().refreshViewport(self.vScrollBar.value(), self.maxRowsInViewport, force=True)
         # Note: on PyQt6 we need to update the viewport explicitely.
         self.viewport().update()
+
+        if curText is None:
+            return
+        items = self.model().findItems(curText, column=self.trackingCol)
+        if len(items) > 0:
+            self.selectionModel().setCurrentIndex(
+                items[0].index(),
+                QItemSelectionModel.SelectionFlag.NoUpdate
+            )
 
     def forceViewRefresh(self):
         return (self.vScrollBar.minimum() == self.vScrollBar.value() or self.vScrollBar.maximum() == self.vScrollBar.value())
@@ -505,7 +575,7 @@ class GenericTableView(QTableView):
             return
 
         selected = self.selectionModel().selectedRows()
-        self.selectDbRows(self._db_selection_range['first']-2, self._db_selection_range['last'])
+        self.selectDbRows(self._db_selection_range['first']-2, self._db_selection_range['last'], fromTop=self._db_selection_range['first'] == 0)
         # place the "cursor" (current index) at the start or end of the selected range.
         # the keyboard will use it to advance from that row onward.
         if len(selected) == 0:
@@ -537,23 +607,36 @@ class GenericTableView(QTableView):
     def mousePressEvent(self, event):
         # we need to call upper class to paint selections properly
         super().mousePressEvent(event)
-        self.mousePressed = True
         rightBtnPressed = event.button() != Qt.MouseButton.LeftButton
+        self.mousePressed = not rightBtnPressed
+
+        # The modifier flags are tracked via the keyboard eventFilter and
+        # only cleared on KeyRelease. A release is missed when focus leaves
+        # the table while Shift/Ctrl is down (e.g. the rule editor dialog
+        # opens), leaving the flag stuck and turning later plain clicks into
+        # range/toggle selections. event.modifiers() is authoritative for
+        # this click, so resync from it.
+        mods = event.modifiers()
+        self.shiftPressed = bool(mods & Qt.KeyboardModifier.ShiftModifier)
+        self.ctrlPressed = bool(mods & Qt.KeyboardModifier.ControlModifier)
 
         self.keySelectAll = False
 
         pos = event.pos()
         item = self.indexAt(pos)
         row = self.rowAt(pos.y())
-        if item is None:
-            return
 
         # FIXME: one column is not enough to uniquely identify rows.
         # for example, we may have the same rule on different nodes, but we'll
         # still use only the name of the rule, so we end up selecting multiple
         # rows.
         clickedItem = self.model().index(row, self.trackingCol)
-        if clickedItem.data() is None:
+        if not item.isValid() or clickedItem.data() is None:
+            # Qt clears the visual selection when pressing on an empty
+            # area; keep the tracked selection in sync, otherwise menu
+            # actions keep operating on rows no longer highlighted.
+            if not self.ctrlPressed:
+                self._rows_selection.clear()
             return
 
         flags = QItemSelectionModel.SelectionFlag.Rows | QItemSelectionModel.SelectionFlag.SelectCurrent
@@ -637,7 +720,7 @@ class GenericTableView(QTableView):
 
     def handleShiftPressed(self):
         # in the viewport, the rows start at 1, but in the db at 0
-        self.selectDbRows(self._db_selection_range['first']-2, self._db_selection_range['last'])
+        self.selectDbRows(self._db_selection_range['first']-2, self._db_selection_range['last'], fromTop=self._db_selection_range['first'] == 0)
 
     def handleMouseMoveEvent(self, row, clickedItem, selected):
         # this code serves to highlight rows while selecting rows by dragging
@@ -1083,7 +1166,7 @@ class GenericTableView(QTableView):
         if not self.mousePressed and not self.shiftPressed:
             self.selectionModel().clear()
         if self.shiftPressed:
-            self.selectDbRows(self._first_row_selected-1, self._last_row_selected)
+            self.selectDbRows(self._first_row_selected-1, self._last_row_selected, fromTop=True)
         self._selectRow(0)
 
     def onKeyEnd(self):
