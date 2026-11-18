@@ -186,6 +186,13 @@ class ViewsManager(config.ConfigManager, nodes.NodesManager, base.EventsBase):
             order_field  = field
         return " ORDER BY %s %s" % (order_field, constants.SORT_ORDER[self.TABLES[cur_idx]['last_order_to']])
 
+    def set_view_order(self, model, pos, order):
+        """replace the order of the model's query by the given column and order"""
+        qstr = model.query().lastQuery().split("ORDER BY")[0]
+        q = qstr.strip(" ") + " ORDER BY %d %s" % (pos+1, constants.SORT_ORDER[order])
+        q += self.get_view_limit()
+        self.queries.setQuery(model, q, limit=self.get_query_limit())
+
     def get_view_config(self, idx):
         return self.TABLES[idx]
 
@@ -361,21 +368,40 @@ class ViewsManager(config.ConfigManager, nodes.NodesManager, base.EventsBase):
             return
 
         model = self.get_active_table().model()
-        qstr = model.query().lastQuery().split("ORDER BY")[0]
-
-        q = qstr.strip(" ") + " ORDER BY %d %s" % (pos+1,  constants.SORT_ORDER[sortOrder.value])
         if cur_idx > 0 and self.TABLES[cur_idx]['cmd'].isVisible() is False:
             self.TABLES[cur_idx]['last_order_by'] = pos+1
             self.TABLES[cur_idx]['last_order_to'] = sortOrder.value
 
-            q = qstr.strip(" ") + self.get_view_order()
-
-        q += self.get_view_limit()
-        self.queries.setQuery(model, q, limit=self.get_query_limit())
+        self.set_view_order(model, pos, sortOrder.value)
 
         header = self.get_active_table().horizontalHeader()
         sort_order = QtCore.Qt.SortOrder.DescendingOrder if sortOrder.value == constants.SORT_DESC else QtCore.Qt.SortOrder.AscendingOrder
         header.setSortIndicator(pos, sort_order)
+
+    def set_view_sort_indicator(self, idx):
+        """set the sort indicator of the view to the order of its query"""
+        sort_order = QtCore.Qt.SortOrder.AscendingOrder
+        if self.TABLES[idx]['last_order_to'] == constants.SORT_DESC:
+            sort_order = QtCore.Qt.SortOrder.DescendingOrder
+        header = self.TABLES[idx]['view'].horizontalHeader()
+        header.blockSignals(True)
+        header.setSortIndicator(int(self.TABLES[idx]['last_order_by'])-1, sort_order)
+        header.blockSignals(False)
+
+    def restore_view_sort_order(self, idx):
+        """apply the sort indicator of the view's header to its query"""
+        # the detail views use their own order, see on_table_header_clicked()
+        if self.in_detail_view(idx):
+            return
+        view = self.TABLES[idx]['view']
+        model = view.model()
+        header = view.horizontalHeader()
+        pos = header.sortIndicatorSection()
+        if pos < 0 or pos >= model.columnCount():
+            return
+        self.TABLES[idx]['last_order_by'] = pos+1
+        self.TABLES[idx]['last_order_to'] = header.sortIndicatorOrder().value
+        self.set_view_order(model, pos, header.sortIndicatorOrder().value)
 
     def on_menu_export_csv_clicked(self, tab_idx):
         tbl_name = self.get_view_name(tab_idx)

@@ -190,6 +190,9 @@ class StatsDialog(menus.MenusManager, menu_actions.MenuActions, views.ViewsManag
             order_by=self.TABLES[constants.TAB_RULES]['last_order_by'],
             sort_direction= constants.SORT_ORDER[0],
             tracking_column=self.TABLES[constants.TAB_RULES]['tracking_column'])
+        # by default the sort indicator points to the first column, which is
+        # not the order of the rules query.
+        self.set_view_sort_indicator(constants.TAB_RULES)
         self.TABLES[constants.TAB_FIREWALL]['view'] = self.view_setup(
             self.fwTable,
             self.TABLES[constants.TAB_FIREWALL]['name'],
@@ -543,6 +546,9 @@ class StatsDialog(menus.MenusManager, menu_actions.MenuActions, views.ViewsManag
         self.restore_details_view_columns(self.eventsTable.horizontalHeader(), Config.STATS_GENERAL_COL_STATE)
         self.restore_details_view_columns(self.nodesTable.horizontalHeader(), Config.STATS_NODES_COL_STATE)
         self.restore_details_view_columns(self.rulesTable.horizontalHeader(), Config.STATS_RULES_COL_STATE)
+        # the header is restored with the signals blocked, so the query
+        # doesn't follow the restored sort indicator.
+        self.restore_view_sort_order(constants.TAB_RULES)
         self.restore_details_view_columns(self.fwTable.horizontalHeader(), Config.STATS_FW_COL_STATE)
         self.restore_details_view_columns(self.alertsTable.horizontalHeader(), Config.STATS_ALERTS_COL_STATE)
         self.restore_details_view_columns(self.netstatTable.horizontalHeader(), Config.STATS_NETSTAT_COL_STATE)
