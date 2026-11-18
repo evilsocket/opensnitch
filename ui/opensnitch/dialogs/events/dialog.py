@@ -18,6 +18,7 @@ from opensnitch.customwidgets.generictableview import GenericTableModel
 from opensnitch.customwidgets.addresstablemodel import AddressTableModel
 from opensnitch.customwidgets.netstattablemodel import NetstatTableModel
 from opensnitch.customwidgets.dashboard import DashboardWidget
+from opensnitch.customwidgets.dashboardtab import DashboardTab
 from opensnitch.customwidgets.worldmap import WorldMapWidget
 from opensnitch.utils import Message, QuickHelp, AsnDB, Icons
 from opensnitch.utils.infowindow import InfoWindow
@@ -108,9 +109,14 @@ class StatsDialog(menus.MenusManager, menu_actions.MenuActions, views.ViewsManag
         self.gridLayout_4.addWidget(self._dashboard, 1, 0)
         self.gridLayout_4.addWidget(self.tabWidget, 2, 0)
 
+        # Dashboard tab — full charts view, inserted as first tab
+        self._dashboard_tab = DashboardTab(db=self._db_sqlite)
+        dash_icon = Icons.new(self, "utilities-system-monitor") if hasattr(Icons, 'new') else QtGui.QIcon()
+        self.tabWidget.insertTab(0, self._dashboard_tab, dash_icon, "Dashboard")
+
         # World Map tab (lazy-loaded on first visit to avoid QtWebEngine startup cost)
         self._world_map = None
-        self._world_map_placeholder = QtWidgets.QWidget()
+        self._world_map_placeholder = self._build_map_placeholder()
         map_icon = Icons.new(self, "network-workgroup") if hasattr(Icons, 'new') else QtGui.QIcon()
         self.tabWidget.addTab(self._world_map_placeholder, map_icon, "World Map")
         self._map_tab_idx = self.tabWidget.count() - 1
@@ -428,10 +434,13 @@ class StatsDialog(menus.MenusManager, menu_actions.MenuActions, views.ViewsManag
         if self._address is not None:
             window_title = QC.translate("stats", "OpenSnitch Network Statistics for {0}").format(self._address)
             self.nodeLabel.setText(self._address)
+        self.setWindowTitle(window_title)
+        QtCore.QTimer.singleShot(0, self._deferred_show_init)
+
+    def _deferred_show_init(self):
         self._load_settings()
         self._add_rulesTree_nodes()
         self._add_rulesTree_fw_chains()
-        self.setWindowTitle(window_title)
         self.refresh_active_table()
         self.show_columns()
 
@@ -1413,7 +1422,38 @@ class StatsDialog(menus.MenusManager, menu_actions.MenuActions, views.ViewsManag
             self.refresh_active_table()
             self._last_update = datetime.datetime.now()
 
+    def _build_map_placeholder(self):
+        placeholder = QtWidgets.QWidget()
+        layout = QtWidgets.QVBoxLayout(placeholder)
+        layout.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
+
+        spinner = QtWidgets.QProgressBar()
+        spinner.setRange(0, 0)
+        spinner.setFixedWidth(260)
+        spinner.setFixedHeight(6)
+
+        label = QtWidgets.QLabel("Loading World Map...")
+        label.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
+        font = label.font()
+        font.setPointSize(11)
+        label.setFont(font)
+        label.setStyleSheet("color: #888;")
+
+        sublabel = QtWidgets.QLabel("Initializing map engine, this may take a moment")
+        sublabel.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
+        sublabel.setStyleSheet("color: #666; font-size: 9pt;")
+
+        layout.addStretch()
+        layout.addWidget(label)
+        layout.addWidget(spinner, alignment=QtCore.Qt.AlignmentFlag.AlignCenter)
+        layout.addWidget(sublabel)
+        layout.addStretch()
+        return placeholder
+
     def _init_world_map(self):
+        QtCore.QTimer.singleShot(0, self._do_init_world_map)
+
+    def _do_init_world_map(self):
         self._world_map = WorldMapWidget()
         self.tabWidget.removeTab(self._map_tab_idx)
         map_icon = Icons.new(self, "network-workgroup") if hasattr(Icons, 'new') else QtGui.QIcon()

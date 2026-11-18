@@ -198,213 +198,578 @@ class GeoIPLookup:
         return results
 
 
-LEAFLET_HTML = """<!DOCTYPE html>
-<html>
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
-<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
-<style>
-  * { margin: 0; padding: 0; }
-  body { background: #181825; overflow: hidden; }
-  #map {
-    width: 100vw;
-    height: 100vh;
-    background: #181825;
-  }
-  .leaflet-container { background: #181825; }
-  .leaflet-tile-pane {
-    filter: invert(1) hue-rotate(180deg) brightness(0.7) contrast(1.3);
-  }
-  .connection-popup {
-    font-family: 'Segoe UI', 'Noto Sans', sans-serif;
-    font-size: 12px;
-    line-height: 1.4;
-  }
-  .connection-popup .allowed { color: #a6e3a1; }
-  .connection-popup .blocked { color: #f38ba8; }
-  .connection-popup b { color: #cdd6f4; }
-  .leaflet-popup-content-wrapper {
-    background: #313244 !important;
-    color: #cdd6f4 !important;
-    border-radius: 8px !important;
-    border: 1px solid #45475a;
-  }
-  .leaflet-popup-tip { background: #313244 !important; }
-  .stats-panel {
-    position: absolute;
-    bottom: 20px;
-    left: 20px;
-    background: rgba(30, 30, 46, 0.9);
-    border: 1px solid #313244;
-    border-radius: 8px;
-    padding: 10px 14px;
-    color: #cdd6f4;
-    font-family: 'Segoe UI', sans-serif;
-    font-size: 12px;
-    z-index: 1000;
-    pointer-events: none;
-  }
-  .stats-panel .count { font-weight: 700; font-size: 14px; }
-  .stats-panel .allowed { color: #a6e3a1; }
-  .stats-panel .blocked { color: #f38ba8; }
-</style>
-</head>
-<body>
-<div id="map"></div>
-<div class="stats-panel" id="statsPanel">
-  <div>Destinations: <span class="count" id="destCount">0</span></div>
-  <div>Allowed: <span class="count allowed" id="allowedCount">0</span></div>
-  <div>Blocked: <span class="count blocked" id="blockedCount">0</span></div>
-</div>
-<script>
-var map = L.map('map', {
-  center: [30, 0],
-  zoom: 2,
-  minZoom: 2,
-  maxZoom: 10,
-  zoomControl: true,
-  attributionControl: false
-});
+class _MapCanvas(QtWidgets.QWidget):
+    """Pure QPainter world map with zoom/pan, cached base layer, country labels."""
 
-L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-  maxZoom: 19
-}).addTo(map);
+    BG = QtGui.QColor("#181825")
+    OCEAN = QtGui.QColor("#1a1a2e")
+    LAND = QtGui.QColor("#2a2a3c")
+    LAND_BORDER = QtGui.QColor("#45475a")
+    GRID = QtGui.QColor(69, 71, 90, 30)
+    LABEL_COLOR = QtGui.QColor(166, 173, 200, 100)
+    LABEL_COLOR_BRIGHT = QtGui.QColor(166, 173, 200, 160)
+    HOME_COLOR = QtGui.QColor("#89b4fa")
+    ALLOWED_COLOR = QtGui.QColor("#a6e3a1")
+    BLOCKED_COLOR = QtGui.QColor("#f38ba8")
+    TEXT_COLOR = QtGui.QColor("#cdd6f4")
+    TEXT_DIM = QtGui.QColor("#a6adc8")
+    TEXT_MUTED = QtGui.QColor("#585b70")
 
-var markers = {};
-var arcs = {};
-var homeLat = null;
-var homeLon = null;
-var homeMarker = null;
-var allowedCount = 0;
-var blockedCount = 0;
+    MIN_ZOOM = 1.0
+    MAX_ZOOM = 20.0
 
-function setHome(lat, lon) {
-  homeLat = lat;
-  homeLon = lon;
-  if (homeMarker) map.removeLayer(homeMarker);
-  homeMarker = L.circleMarker([lat, lon], {
-    radius: 8,
-    fillColor: '#89b4fa',
-    color: '#89b4fa',
-    weight: 2,
-    opacity: 1,
-    fillOpacity: 0.8
-  }).addTo(map).bindPopup('<div class="connection-popup"><b>Your Location</b></div>');
-}
+    _COUNTRIES = None
 
-function addConnection(id, lat, lon, city, country, action, process, dst_host) {
-  var isAllowed = action.toLowerCase() !== 'deny' && action.toLowerCase() !== 'drop' && action.toLowerCase() !== 'reject';
-  var color = isAllowed ? '#a6e3a1' : '#f38ba8';
+    @classmethod
+    def _load_data(cls):
+        if cls._COUNTRIES is not None:
+            return
+        data_path = os.path.join(os.path.dirname(__file__), "world_map.json")
+        if os.path.exists(data_path):
+            with open(data_path) as f:
+                raw = json.load(f)
+            for c in raw:
+                total_pts = sum(len(poly) for poly in c.get('p', []))
+                c['_size'] = total_pts
+            cls._COUNTRIES = raw
+        else:
+            cls._COUNTRIES = []
 
-  if (isAllowed) allowedCount++; else blockedCount++;
+    _BTN_SIZE = 32
+    _BTN_MARGIN = 12
+    _BTN_GAP = 4
 
-  var key = lat.toFixed(2) + ',' + lon.toFixed(2);
-
-  if (!markers[key]) {
-    markers[key] = {
-      marker: L.circleMarker([lat, lon], {
-        radius: 5,
-        fillColor: color,
-        color: color,
-        weight: 1,
-        opacity: 0.9,
-        fillOpacity: 0.7
-      }).addTo(map),
-      connections: []
-    };
-  }
-
-  var info = {process: process, dst: dst_host || (city + ', ' + country), action: action};
-  markers[key].connections.push(info);
-
-  var popupHtml = '<div class="connection-popup">';
-  popupHtml += '<b>' + (city ? city + ', ' : '') + country + '</b><br>';
-  var last5 = markers[key].connections.slice(-5);
-  for (var i = 0; i < last5.length; i++) {
-    var c = last5[i];
-    var cls = (c.action.toLowerCase() === 'deny' || c.action.toLowerCase() === 'drop') ? 'blocked' : 'allowed';
-    popupHtml += '<span class="' + cls + '">' + c.action + '</span> ' + c.process + ' → ' + c.dst + '<br>';
-  }
-  if (markers[key].connections.length > 5) {
-    popupHtml += '... and ' + (markers[key].connections.length - 5) + ' more';
-  }
-  popupHtml += '</div>';
-  markers[key].marker.bindPopup(popupHtml);
-
-  // draw arc from home
-  if (homeLat !== null) {
-    if (arcs[key]) map.removeLayer(arcs[key]);
-    arcs[key] = L.polyline(
-      arcPoints([homeLat, homeLon], [lat, lon]),
-      {color: color, weight: 1.5, opacity: 0.4, dashArray: '4 6'}
-    ).addTo(map);
-  }
-
-  document.getElementById('destCount').textContent = Object.keys(markers).length;
-  document.getElementById('allowedCount').textContent = allowedCount;
-  document.getElementById('blockedCount').textContent = blockedCount;
-}
-
-function arcPoints(from, to, numPoints) {
-  numPoints = numPoints || 20;
-  var points = [];
-  for (var i = 0; i <= numPoints; i++) {
-    var t = i / numPoints;
-    var lat = from[0] + t * (to[0] - from[0]);
-    var lon = from[1] + t * (to[1] - from[1]);
-    // arc curvature
-    var d = Math.sqrt(Math.pow(to[0]-from[0],2) + Math.pow(to[1]-from[1],2));
-    var arc = Math.sin(Math.PI * t) * d * 0.15;
-    lat += arc;
-    points.push([lat, lon]);
-  }
-  return points;
-}
-
-function clearConnections() {
-  for (var k in markers) {
-    map.removeLayer(markers[k].marker);
-  }
-  for (var k in arcs) {
-    map.removeLayer(arcs[k]);
-  }
-  markers = {};
-  arcs = {};
-  allowedCount = 0;
-  blockedCount = 0;
-  document.getElementById('destCount').textContent = '0';
-  document.getElementById('allowedCount').textContent = '0';
-  document.getElementById('blockedCount').textContent = '0';
-}
-</script>
-</body>
-</html>"""
-
-
-class WorldMapFallback(QtWidgets.QWidget):
-    """Fallback widget when QWebEngineView is not available."""
     def __init__(self, parent=None):
         super().__init__(parent)
-        layout = QtWidgets.QVBoxLayout(self)
-        layout.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
+        self._load_data()
+        self.setMinimumSize(400, 250)
+        self._home = None
+        self._markers = {}
+        self._allowed = 0
+        self._blocked = 0
+        self._tooltip_key = None
+        self._tooltip_pos = None
 
-        icon_label = QtWidgets.QLabel()
-        icon_label.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
-        icon_label.setStyleSheet("font-size: 48px; color: #585b70;")
-        icon_label.setText("\U0001F30D")
-        layout.addWidget(icon_label)
+        self._zoom = 1.0
+        self._center_lon = 0.0
+        self._center_lat = 20.0
+        self._dragging = False
+        self._drag_start = None
+        self._drag_center = None
+        self._hover_btn = None
 
-        msg = QtWidgets.QLabel("World Map requires PyQt6-WebEngine")
-        msg.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
-        msg.setStyleSheet("font-size: 14px; color: #a6adc8; font-weight: 600;")
-        layout.addWidget(msg)
+        self._base_cache = None
+        self._base_cache_key = None
+        self.setMouseTracking(True)
+        self.setFocusPolicy(QtCore.Qt.FocusPolicy.WheelFocus)
 
-        hint = QtWidgets.QLabel("Install with: pip3 install PyQt6-WebEngine")
-        hint.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
-        hint.setStyleSheet("font-size: 12px; color: #585b70;")
-        layout.addWidget(hint)
+    def _viewport(self):
+        """Return (lon_min, lon_max, lat_min, lat_max) of visible area."""
+        w, h = self.width(), self.height()
+        lon_span = 360.0 / self._zoom
+        lat_span = 180.0 / self._zoom
+        aspect = w / max(h, 1) * (180.0 / 360.0)
+        if aspect > 1:
+            lat_span = lon_span / aspect * (180.0 / 360.0)
+        else:
+            lon_span = lat_span * aspect * (360.0 / 180.0)
+        return (
+            self._center_lon - lon_span / 2,
+            self._center_lon + lon_span / 2,
+            self._center_lat - lat_span / 2,
+            self._center_lat + lat_span / 2,
+        )
+
+    def _lonlat_to_xy(self, lon, lat):
+        w, h = self.width(), self.height()
+        vp = self._viewport()
+        lon_span = vp[1] - vp[0]
+        lat_span = vp[3] - vp[2]
+        x = (lon - vp[0]) / lon_span * w
+        y = (vp[3] - lat) / lat_span * h
+        return x, y
+
+    def _xy_to_lonlat(self, x, y):
+        w, h = self.width(), self.height()
+        vp = self._viewport()
+        lon_span = vp[1] - vp[0]
+        lat_span = vp[3] - vp[2]
+        lon = vp[0] + x / w * lon_span
+        lat = vp[3] - y / h * lat_span
+        return lon, lat
+
+    def _clamp_center(self):
+        self._center_lon = max(-180, min(180, self._center_lon))
+        self._center_lat = max(-85, min(85, self._center_lat))
+
+    def _btn_rects(self):
+        w, h = self.width(), self.height()
+        s = self._BTN_SIZE
+        m = self._BTN_MARGIN
+        g = self._BTN_GAP
+        x = w - m - s
+        by = h - m - s * 3 - g * 2
+        return {
+            'in': QtCore.QRectF(x, by, s, s),
+            'out': QtCore.QRectF(x, by + s + g, s, s),
+            'reset': QtCore.QRectF(x, by + (s + g) * 2, s, s),
+        }
+
+    def _zoom_in(self):
+        self._zoom = min(self.MAX_ZOOM, self._zoom * 1.5)
+        self._clamp_center()
+        self._invalidate_cache()
+        self.update()
+
+    def _zoom_out(self):
+        self._zoom = max(self.MIN_ZOOM, self._zoom / 1.5)
+        self._clamp_center()
+        self._invalidate_cache()
+        self.update()
+
+    def _zoom_reset(self):
+        self._zoom = 1.0
+        self._center_lon = 0.0
+        self._center_lat = 20.0
+        self._invalidate_cache()
+        self.update()
+
+    def _invalidate_cache(self):
+        self._base_cache = None
+
+    def set_home(self, lat, lon):
+        self._home = (lat, lon)
+        self.update()
+
+    def add_marker(self, key, lat, lon, color, info):
+        if key not in self._markers:
+            self._markers[key] = {'lat': lat, 'lon': lon, 'color': color, 'conns': []}
+        self._markers[key]['conns'].append(info)
+        self._markers[key]['color'] = color
+        self.update()
+
+    def set_counts(self, allowed, blocked):
+        self._allowed = allowed
+        self._blocked = blocked
+
+    def _country_visible(self, country, vp):
+        """Quick check if any polygon point is in the viewport."""
+        for poly in country.get('p', []):
+            for lon, lat in poly:
+                if vp[0] <= lon <= vp[1] and vp[2] <= lat <= vp[3]:
+                    return True
+        return False
+
+    def _label_min_size(self):
+        """Min polygon point count to show label at current zoom."""
+        if self._zoom >= 8:
+            return 3
+        elif self._zoom >= 4:
+            return 5
+        elif self._zoom >= 2:
+            return 10
+        else:
+            return 30
+
+    def _render_base(self):
+        w, h = self.width(), self.height()
+        vp = self._viewport()
+        pixmap = QtGui.QPixmap(w, h)
+        p = QtGui.QPainter(pixmap)
+        p.setRenderHint(QtGui.QPainter.RenderHint.Antialiasing)
+
+        p.fillRect(0, 0, w, h, self.OCEAN)
+
+        # grid — adapt spacing to zoom
+        base_step = 30
+        if self._zoom >= 6:
+            base_step = 5
+        elif self._zoom >= 3:
+            base_step = 10
+
+        pen = QtGui.QPen(self.GRID, 0.5)
+        p.setPen(pen)
+        lat_start = int(vp[2] / base_step) * base_step
+        for lat in range(lat_start, int(vp[3]) + base_step, base_step):
+            _, y = self._lonlat_to_xy(0, lat)
+            if 0 <= y <= h:
+                p.drawLine(QtCore.QPointF(0, y), QtCore.QPointF(w, y))
+        lon_start = int(vp[0] / base_step) * base_step
+        for lon in range(lon_start, int(vp[1]) + base_step, base_step):
+            x, _ = self._lonlat_to_xy(lon, 0)
+            if 0 <= x <= w:
+                p.drawLine(QtCore.QPointF(x, 0), QtCore.QPointF(x, h))
+
+        # countries
+        border_width = 0.6 if self._zoom < 4 else 1.0
+        p.setPen(QtGui.QPen(self.LAND_BORDER, border_width))
+        p.setBrush(QtGui.QBrush(self.LAND))
+        for country in self._COUNTRIES:
+            for poly in country.get('p', []):
+                path = QtGui.QPainterPath()
+                for i, (lon, lat) in enumerate(poly):
+                    x, y = self._lonlat_to_xy(lon, lat)
+                    if i == 0:
+                        path.moveTo(x, y)
+                    else:
+                        path.lineTo(x, y)
+                path.closeSubpath()
+                p.drawPath(path)
+
+        # country labels — zoom-dependent, collision-aware
+        min_size = self._label_min_size()
+        label_size = max(7, min(11, int(6 + self._zoom * 0.8)))
+        label_font = QtGui.QFont()
+        label_font.setPointSize(label_size)
+        label_font.setWeight(QtGui.QFont.Weight.Normal if self._zoom < 3 else QtGui.QFont.Weight.Medium)
+        p.setFont(label_font)
+        p.setPen(self.LABEL_COLOR if self._zoom < 3 else self.LABEL_COLOR_BRIGHT)
+        fm = QtGui.QFontMetrics(label_font)
+        fh = fm.height()
+        pad = 4
+
+        candidates = []
+        for country in self._COUNTRIES:
+            name = country.get('n', '')
+            centroid = country.get('c', [])
+            if not name or not centroid:
+                continue
+            if country['_size'] < min_size:
+                continue
+            cx, cy = self._lonlat_to_xy(centroid[0], centroid[1])
+            if cx < -50 or cx > w + 50 or cy < -20 or cy > h + 20:
+                continue
+            candidates.append((country['_size'], name, cx, cy))
+        candidates.sort(key=lambda x: -x[0])
+
+        placed = []
+        for _, name, cx, cy in candidates:
+            tw = fm.horizontalAdvance(name)
+            lx = cx - tw / 2
+            ly = cy - fh / 2
+            rect = (lx - pad, ly - pad, tw + pad * 2, fh + pad * 2)
+            overlap = False
+            for pr in placed:
+                if not (rect[0] > pr[0] + pr[2] or rect[0] + rect[2] < pr[0] or
+                        rect[1] > pr[1] + pr[3] or rect[1] + rect[3] < pr[1]):
+                    overlap = True
+                    break
+            if overlap:
+                continue
+            placed.append(rect)
+            p.drawText(QtCore.QPointF(lx, cy + fm.ascent() / 2), name)
+
+        p.end()
+        return pixmap
+
+    def resizeEvent(self, event):
+        self._invalidate_cache()
+        super().resizeEvent(event)
+
+    def wheelEvent(self, event):
+        delta = event.angleDelta().y()
+        pos = event.position() if hasattr(event, 'position') else event.pos()
+        lon_before, lat_before = self._xy_to_lonlat(pos.x(), pos.y())
+
+        if delta > 0:
+            self._zoom = min(self.MAX_ZOOM, self._zoom * 1.25)
+        else:
+            self._zoom = max(self.MIN_ZOOM, self._zoom / 1.25)
+
+        lon_after, lat_after = self._xy_to_lonlat(pos.x(), pos.y())
+        self._center_lon -= (lon_after - lon_before)
+        self._center_lat -= (lat_after - lat_before)
+        self._clamp_center()
+        self._invalidate_cache()
+        self.update()
+
+    def _hit_button(self, pos):
+        for name, rect in self._btn_rects().items():
+            if rect.contains(pos):
+                return name
+        return None
+
+    def mousePressEvent(self, event):
+        if event.button() == QtCore.Qt.MouseButton.LeftButton:
+            pos = event.position() if hasattr(event, 'position') else event.pos()
+            btn = self._hit_button(pos)
+            if btn == 'in':
+                self._zoom_in()
+                return
+            elif btn == 'out':
+                self._zoom_out()
+                return
+            elif btn == 'reset':
+                self._zoom_reset()
+                return
+            self._dragging = True
+            self._drag_start = (pos.x(), pos.y())
+            self._drag_center = (self._center_lon, self._center_lat)
+            self.setCursor(QtCore.Qt.CursorShape.ClosedHandCursor)
+        elif event.button() == QtCore.Qt.MouseButton.MiddleButton:
+            self._zoom_reset()
+
+    def mouseReleaseEvent(self, event):
+        if event.button() == QtCore.Qt.MouseButton.LeftButton:
+            self._dragging = False
+            self.setCursor(QtCore.Qt.CursorShape.ArrowCursor)
+
+    def mouseMoveEvent(self, event):
+        pos = event.position() if hasattr(event, 'position') else event.pos()
+
+        if self._dragging and self._drag_start:
+            dx = pos.x() - self._drag_start[0]
+            dy = pos.y() - self._drag_start[1]
+            vp = self._viewport()
+            lon_per_px = (vp[1] - vp[0]) / self.width()
+            lat_per_px = (vp[3] - vp[2]) / self.height()
+            self._center_lon = self._drag_center[0] - dx * lon_per_px
+            self._center_lat = self._drag_center[1] + dy * lat_per_px
+            self._clamp_center()
+            self._invalidate_cache()
+            self.update()
+            return
+
+        # button hover
+        btn = self._hit_button(pos)
+        if btn != self._hover_btn:
+            self._hover_btn = btn
+            self.setCursor(QtCore.Qt.CursorShape.PointingHandCursor if btn else QtCore.Qt.CursorShape.ArrowCursor)
+            self.update()
+
+        # tooltip hit test
+        if not btn:
+            hit = None
+            for key, m in self._markers.items():
+                mx, my = self._lonlat_to_xy(m['lon'], m['lat'])
+                hit_radius = max(8, 12 / max(self._zoom * 0.3, 1))
+                if abs(pos.x() - mx) < hit_radius and abs(pos.y() - my) < hit_radius:
+                    hit = key
+                    break
+            if hit != self._tooltip_key:
+                self._tooltip_key = hit
+                self._tooltip_pos = (pos.x(), pos.y()) if hit else None
+                self.update()
+
+    def mouseDoubleClickEvent(self, event):
+        if event.button() == QtCore.Qt.MouseButton.LeftButton:
+            pos = event.position() if hasattr(event, 'position') else event.pos()
+            lon, lat = self._xy_to_lonlat(pos.x(), pos.y())
+            self._center_lon = lon
+            self._center_lat = lat
+            self._zoom = min(self.MAX_ZOOM, self._zoom * 2)
+            self._clamp_center()
+            self._invalidate_cache()
+            self.update()
+
+    def paintEvent(self, event):
+        w, h = self.width(), self.height()
+        if w < 2 or h < 2:
+            return
+
+        cache_key = (w, h, self._zoom, round(self._center_lon, 4), round(self._center_lat, 4))
+        if self._base_cache is None or self._base_cache_key != cache_key:
+            self._base_cache = self._render_base()
+            self._base_cache_key = cache_key
+
+        p = QtGui.QPainter(self)
+        p.setRenderHint(QtGui.QPainter.RenderHint.Antialiasing)
+
+        # cached base
+        p.drawPixmap(0, 0, self._base_cache)
+
+        # arcs from home
+        if self._home:
+            hx, hy = self._lonlat_to_xy(self._home[1], self._home[0])
+            for m in self._markers.values():
+                color = QtGui.QColor(m['color'])
+                color.setAlpha(60)
+                pen = QtGui.QPen(color, 1.0)
+                pen.setDashPattern([4, 6])
+                p.setPen(pen)
+                mx, my = self._lonlat_to_xy(m['lon'], m['lat'])
+                path = QtGui.QPainterPath()
+                path.moveTo(hx, hy)
+                cx = (hx + mx) / 2
+                cy = min(hy, my) - abs(mx - hx) * 0.1
+                path.quadTo(cx, cy, mx, my)
+                p.drawPath(path)
+
+        # destination markers
+        p.setPen(QtCore.Qt.PenStyle.NoPen)
+        for m in self._markers.values():
+            x, y = self._lonlat_to_xy(m['lon'], m['lat'])
+            if x < -20 or x > w + 20 or y < -20 or y > h + 20:
+                continue
+            color = QtGui.QColor(m['color'])
+            n = min(len(m['conns']), 10)
+            radius = (3 + n * 0.4) * min(self._zoom * 0.5, 2)
+
+            glow = QtGui.QColor(color)
+            glow.setAlpha(40)
+            p.setBrush(glow)
+            p.drawEllipse(QtCore.QPointF(x, y), radius + 4, radius + 4)
+            p.setBrush(color)
+            p.drawEllipse(QtCore.QPointF(x, y), radius, radius)
+
+        # home marker
+        if self._home:
+            hx, hy = self._lonlat_to_xy(self._home[1], self._home[0])
+            r = 7 * min(self._zoom * 0.4, 1.5)
+            p.setBrush(QtGui.QBrush(self.HOME_COLOR))
+            p.setPen(QtGui.QPen(QtGui.QColor("#181825"), 2))
+            p.drawEllipse(QtCore.QPointF(hx, hy), r, r)
+
+        # stats panel
+        font = p.font()
+        font.setPointSize(9)
+        font.setWeight(QtGui.QFont.Weight.Medium)
+        p.setFont(font)
+        panel_y = h - 65
+        panel_bg = QtGui.QColor(24, 24, 37, 220)
+        panel_rect = QtCore.QRectF(12, panel_y, 190, 55)
+        p.setPen(QtCore.Qt.PenStyle.NoPen)
+        p.setBrush(panel_bg)
+        p.drawRoundedRect(panel_rect, 6, 6)
+
+        p.setPen(self.TEXT_COLOR)
+        p.drawText(QtCore.QPointF(20, panel_y + 17),
+                   f"Destinations: {len(self._markers)}")
+        p.setPen(self.ALLOWED_COLOR)
+        p.drawText(QtCore.QPointF(20, panel_y + 33),
+                   f"Allowed: {self._allowed}")
+        p.setPen(self.BLOCKED_COLOR)
+        p.drawText(QtCore.QPointF(20, panel_y + 49),
+                   f"Blocked: {self._blocked}")
+
+        # zoom controls
+        btns = self._btn_rects()
+        btn_bg = QtGui.QColor(30, 30, 46, 220)
+        btn_hover_bg = QtGui.QColor(49, 50, 68, 240)
+        btn_border = QtGui.QColor(69, 71, 90, 120)
+        btn_font = QtGui.QFont()
+        btn_font.setPointSize(14)
+        btn_font.setWeight(QtGui.QFont.Weight.Bold)
+
+        for name, rect in btns.items():
+            is_hover = (self._hover_btn == name)
+            p.setPen(QtGui.QPen(btn_border, 0.5))
+            p.setBrush(btn_hover_bg if is_hover else btn_bg)
+            p.drawRoundedRect(rect, 6, 6)
+            p.setFont(btn_font)
+            p.setPen(self.TEXT_COLOR if is_hover else self.TEXT_DIM)
+            if name == 'in':
+                label = "+"
+            elif name == 'out':
+                label = "−"
+            else:
+                btn_font_sm = QtGui.QFont()
+                btn_font_sm.setPointSize(9)
+                btn_font_sm.setWeight(QtGui.QFont.Weight.Medium)
+                p.setFont(btn_font_sm)
+                label = "↺"
+            p.drawText(rect, QtCore.Qt.AlignmentFlag.AlignCenter, label)
+
+        if self._zoom > 1.05:
+            zoom_font = QtGui.QFont()
+            zoom_font.setPointSize(7)
+            p.setFont(zoom_font)
+            p.setPen(self.TEXT_MUTED)
+            zt = f"{self._zoom:.1f}x"
+            zr = btns['reset']
+            p.drawText(QtCore.QPointF(zr.x() + (zr.width() - QtGui.QFontMetrics(zoom_font).horizontalAdvance(zt)) / 2, zr.y() + zr.height() + 12), zt)
+
+        # tooltip
+        if self._tooltip_key and self._tooltip_key in self._markers:
+            self._draw_tooltip(p)
+
+        p.end()
+
+    def _draw_tooltip(self, p):
+        m = self._markers[self._tooltip_key]
+        x, y = self._tooltip_pos or self._lonlat_to_xy(m['lon'], m['lat'])
+
+        conns = m['conns']
+        city = conns[0].get('city', '') if conns else ''
+        country = conns[0].get('country', '') if conns else ''
+        location = f"{city}, {country}" if city else country
+        header = location or f"{m['lat']:.1f}, {m['lon']:.1f}"
+        lat_dir = 'N' if m['lat'] >= 0 else 'S'
+        lon_dir = 'E' if m['lon'] >= 0 else 'W'
+        coord_line = f"{abs(m['lat']):.2f}°{lat_dir}  {abs(m['lon']):.2f}°{lon_dir}"
+        ip_line = conns[0].get('ip', '') if conns else ''
+
+        lines = []
+        last6 = conns[-6:]
+        for c in last6:
+            is_allow = 'allow' in c['action'].lower()
+            prefix = "✓" if is_allow else "✗"
+            proc = os.path.basename(c['process']) if '/' in c['process'] else c['process']
+            lines.append((prefix, f" {proc} → {c['dst']}", c['action']))
+        if len(conns) > 6:
+            lines.append(("", f"  +{len(conns) - 6} more connections", ""))
+
+        font_header = QtGui.QFont()
+        font_header.setPointSize(10)
+        font_header.setWeight(QtGui.QFont.Weight.Bold)
+        font_body = QtGui.QFont()
+        font_body.setPointSize(8)
+        font_coord = QtGui.QFont()
+        font_coord.setPointSize(7)
+
+        fm_h = QtGui.QFontMetrics(font_header)
+        fm_b = QtGui.QFontMetrics(font_body)
+        fm_c = QtGui.QFontMetrics(font_coord)
+
+        body_widths = [fm_b.horizontalAdvance(l[0] + l[1]) for l in lines] if lines else [0]
+        tw = max(fm_h.horizontalAdvance(header),
+                 fm_c.horizontalAdvance(coord_line + "  " + ip_line),
+                 max(body_widths)) + 28
+        tw = max(tw, 220)
+        header_h = 46
+        th = header_h + len(lines) * 17 + 10
+
+        tx = x + 14
+        ty = y - th - 8
+        if tx + tw > self.width():
+            tx = x - tw - 14
+        if ty < 0:
+            ty = y + 14
+
+        # background
+        p.setPen(QtCore.Qt.PenStyle.NoPen)
+        p.setBrush(QtGui.QColor(30, 30, 46, 245))
+        p.drawRoundedRect(QtCore.QRectF(tx, ty, tw, th), 8, 8)
+        p.setPen(QtGui.QPen(QtGui.QColor("#45475a"), 0.5))
+        p.drawRoundedRect(QtCore.QRectF(tx, ty, tw, th), 8, 8)
+
+        # header
+        p.setFont(font_header)
+        p.setPen(self.TEXT_COLOR)
+        p.drawText(QtCore.QPointF(tx + 10, ty + 18), header)
+
+        # coordinates + IP
+        p.setFont(font_coord)
+        p.setPen(self.TEXT_MUTED)
+        info = coord_line
+        if ip_line:
+            info += f"   {ip_line}"
+        p.drawText(QtCore.QPointF(tx + 10, ty + 32), info)
+
+        # separator
+        p.setPen(QtGui.QPen(QtGui.QColor("#45475a"), 0.5))
+        p.drawLine(QtCore.QPointF(tx + 8, ty + header_h - 4),
+                   QtCore.QPointF(tx + tw - 8, ty + header_h - 4))
+
+        # connections
+        p.setFont(font_body)
+        for i, (prefix, text, action) in enumerate(lines):
+            row_y = ty + header_h + 10 + i * 17
+            is_allowed = 'allow' in action.lower() if action else True
+            p.setPen(self.ALLOWED_COLOR if is_allowed else self.BLOCKED_COLOR)
+            p.drawText(QtCore.QPointF(tx + 10, row_y), prefix)
+            p.setPen(self.TEXT_DIM)
+            p.drawText(QtCore.QPointF(tx + 10 + fm_b.horizontalAdvance(prefix), row_y), text)
 
 
 class WorldMapWidget(QtWidgets.QWidget):
@@ -415,37 +780,15 @@ class WorldMapWidget(QtWidgets.QWidget):
         layout.setContentsMargins(0, 0, 0, 0)
 
         self._geoip = GeoIPLookup.instance()
-        self._web_view = None
-        self._page_loaded = False
-        self._pending_commands = []
+        self._canvas = _MapCanvas()
         self._home_set = False
-
-        if WEBENGINE_AVAILABLE:
-            self._web_view = QWebEngineView()
-            self._web_view.setHtml(LEAFLET_HTML)
-            self._web_view.loadFinished.connect(self._on_load_finished)
-            layout.addWidget(self._web_view)
-        else:
-            layout.addWidget(WorldMapFallback())
-
-    def _on_load_finished(self, ok):
-        if ok:
-            self._page_loaded = True
-            for cmd in self._pending_commands:
-                self._run_js(cmd)
-            self._pending_commands.clear()
-
-    def _run_js(self, js):
-        if self._web_view is None:
-            return
-        if not self._page_loaded:
-            self._pending_commands.append(js)
-            return
-        self._web_view.page().runJavaScript(js)
+        self._allowed_count = 0
+        self._blocked_count = 0
+        layout.addWidget(self._canvas)
 
     def set_home(self, lat, lon):
         self._home_set = True
-        self._run_js(f"setHome({lat}, {lon});")
+        self._canvas.set_home(lat, lon)
 
     def add_connection(self, conn_id, dst_ip, action, process, dst_host=""):
         geo = self._geoip.lookup(dst_ip)
@@ -455,15 +798,27 @@ class WorldMapWidget(QtWidgets.QWidget):
         if not self._home_set:
             self._try_set_home()
 
-        city = geo['city'].replace("'", "\\'")
-        country = geo['country'].replace("'", "\\'")
-        process_safe = process.replace("'", "\\'") if process else ""
-        dst_host_safe = dst_host.replace("'", "\\'") if dst_host else ""
+        is_blocked = action.lower() in ('deny', 'drop', 'reject')
+        if is_blocked:
+            self._blocked_count += 1
+            color = "#f38ba8"
+        else:
+            self._allowed_count += 1
+            color = "#a6e3a1"
 
-        self._run_js(
-            f"addConnection('{conn_id}', {geo['lat']}, {geo['lon']}, "
-            f"'{city}', '{country}', '{action}', '{process_safe}', '{dst_host_safe}');"
-        )
+        key = f"{geo['lat']:.2f},{geo['lon']:.2f}"
+        city = geo.get('city', '')
+        country = geo.get('country', '')
+
+        self._canvas.add_marker(key, geo['lat'], geo['lon'], color, {
+            'process': process or "",
+            'dst': dst_host or dst_ip,
+            'action': action,
+            'ip': dst_ip,
+            'city': city,
+            'country': country,
+        })
+        self._canvas.set_counts(self._allowed_count, self._blocked_count)
 
     def _try_set_home(self):
         geo = self._geoip._lookup_api("")
@@ -475,7 +830,13 @@ class WorldMapWidget(QtWidgets.QWidget):
         self.set_home(51.5, -0.1)
 
     def clear_connections(self):
-        self._run_js("clearConnections();")
+        self._canvas._markers.clear()
+        self._canvas._home = None
+        self._home_set = False
+        self._allowed_count = 0
+        self._blocked_count = 0
+        self._canvas.set_counts(0, 0)
+        self._canvas.update()
 
     def is_available(self):
-        return WEBENGINE_AVAILABLE
+        return True
