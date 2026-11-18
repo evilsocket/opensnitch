@@ -8,7 +8,7 @@
 #
 
 import pytest
-from PyQt6 import QtCore, QtWidgets
+from PyQt6 import QtCore, QtGui, QtWidgets
 from PyQt6.QtCore import Qt
 
 # opensnitch.utils must be imported before opensnitch.database to resolve
@@ -226,3 +226,111 @@ def test_plain_click_with_stale_ctrl_flag_selects_single_row(rules_view, qtbot):
 
     assert selected_row_names(rules_view) == [rule_name(1)]
     assert rules_view._rows_selection == {rule_name(1)}
+
+
+def shift_click_row(qtbot, view, row):
+    cell_rect = view.visualRect(view.model().index(row, COL_NAME))
+    qtbot.mouseClick(
+        view.viewport(), Qt.MouseButton.LeftButton,
+        Qt.KeyboardModifier.ShiftModifier, pos=cell_rect.center()
+    )
+
+
+def get_displayed_names(view, first, last):
+    return {view.model().index(row, COL_NAME).data() for row in range(first, last+1)}
+
+
+def get_highlighted_names(view):
+    return {sel.data() for sel in view.selectionModel().selectedRows(COL_NAME)}
+
+
+def insert_rules_on_top(num):
+    """Rules sorted before the displayed ones, without refreshing the view,
+    like new events arriving while the user selects rows."""
+    db = Database.instance()
+    for i in range(num):
+        db.insert(
+            "rules",
+            "(time, node, name, enabled, precedence, action, duration, " \
+            "operator_type, operator_sensitive, operator_operand, operator_data, " \
+            "description, nolog, created)",
+            (
+                "2026-06-06 11:00:00", TEST_NODE, "aaa-{0:03d}".format(i), "True",
+                "False", "allow", "always", "simple", "False", "process.path",
+                "/bin/new-app-{0}".format(i), "", "False", "2026-06-06 11:00:00"
+            )
+        )
+
+
+def test_shift_select_range_after_new_rows_on_top(mixed_rules_view, qtbot):
+    """Regression: the rows range was obtained from the db by position, so
+    if new rows were added on top since the last viewport refresh, the
+    selected rows were shifted up as many rows as rows added."""
+    view = mixed_rules_view
+    click_row(qtbot, view, 2)
+    insert_rules_on_top(3)
+    expected = get_displayed_names(view, 2, 6)
+
+    shift_click_row(qtbot, view, 6)
+
+    assert view._rows_selection == expected
+    assert get_highlighted_names(view) == expected
+
+
+def test_shift_select_range_scrolled_after_new_rows_on_top(mixed_rules_view, qtbot):
+    view = mixed_rules_view
+    view.vScrollBar.setValue(10)
+    click_row(qtbot, view, 1)
+    insert_rules_on_top(4)
+    expected = get_displayed_names(view, 1, 5)
+
+    shift_click_row(qtbot, view, 5)
+
+    assert view._rows_selection == expected
+    assert get_highlighted_names(view) == expected
+
+
+def test_shift_select_range_after_deleting_rows_above(mixed_rules_view, qtbot):
+    view = mixed_rules_view
+    view.vScrollBar.setValue(10)
+    click_row(qtbot, view, 1)
+    Database.instance().remove("DELETE FROM rules WHERE name IN ('app-000', 'app-001')")
+    expected = get_displayed_names(view, 1, 5)
+
+    shift_click_row(qtbot, view, 5)
+
+    assert view._rows_selection == expected
+
+
+def test_drag_select_range_after_new_rows_on_top(mixed_rules_view, qtbot):
+    view = mixed_rules_view
+    start_pos = view.visualRect(view.model().index(2, COL_NAME)).center()
+    end_pos = view.visualRect(view.model().index(6, COL_NAME)).center()
+    qtbot.mousePress(view.viewport(), Qt.MouseButton.LeftButton, pos=start_pos)
+    insert_rules_on_top(3)
+    expected = get_displayed_names(view, 2, 6)
+
+    move_event = QtGui.QMouseEvent(
+        QtCore.QEvent.Type.MouseMove, QtCore.QPointF(end_pos), QtCore.QPointF(end_pos),
+        Qt.MouseButton.NoButton, Qt.MouseButton.LeftButton, Qt.KeyboardModifier.NoModifier
+    )
+    QtWidgets.QApplication.sendEvent(view.viewport(), move_event)
+    qtbot.mouseRelease(view.viewport(), Qt.MouseButton.LeftButton, pos=end_pos)
+
+    assert view._rows_selection == expected
+
+
+def test_shift_home_selects_new_rows_on_top(mixed_rules_view, qtbot):
+    """shift+Home selects up to the first row of the table, so the rows
+    added on top since the last viewport refresh must be selected too."""
+    view = mixed_rules_view
+    click_row(qtbot, view, 4)
+    expected = get_displayed_names(view, 0, 4)
+    insert_rules_on_top(3)
+    expected |= {"aaa-{0:03d}".format(i) for i in range(3)}
+
+    qtbot.keyPress(view, Qt.Key.Key_Shift)
+    qtbot.keyClick(view, Qt.Key.Key_Home, Qt.KeyboardModifier.ShiftModifier)
+    qtbot.keyRelease(view, Qt.Key.Key_Shift)
+
+    assert view._rows_selection == expected
