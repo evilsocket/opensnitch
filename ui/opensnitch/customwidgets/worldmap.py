@@ -699,15 +699,26 @@ class _MapCanvas(QtWidgets.QWidget):
         coord_line = f"{abs(m['lat']):.2f}°{lat_dir}  {abs(m['lon']):.2f}°{lon_dir}"
         ip_line = conns[0].get('ip', '') if conns else ''
 
-        lines = []
-        last6 = conns[-6:]
-        for c in last6:
-            is_allow = 'allow' in c['action'].lower()
-            prefix = "✓" if is_allow else "✗"
+        # aggregate duplicate connections
+        from collections import Counter
+        conn_counts = Counter()
+        conn_action = {}
+        for c in conns:
             proc = os.path.basename(c['process']) if '/' in c['process'] else c['process']
-            lines.append((prefix, f" {proc} → {c['dst']}", c['action']))
-        if len(conns) > 6:
-            lines.append(("", f"  +{len(conns) - 6} more connections", ""))
+            key = (proc, c['dst'], c['action'])
+            conn_counts[key] += 1
+            conn_action[key] = c['action']
+
+        sorted_conns = conn_counts.most_common(6)
+        lines = []
+        for (proc, dst, action), count in sorted_conns:
+            is_allow = 'allow' in action.lower()
+            prefix = "✓" if is_allow else "✗"
+            suffix = f" ({count})" if count > 1 else ""
+            lines.append((prefix, f" {proc} → {dst}{suffix}", action))
+        remaining = len(conn_counts) - 6
+        if remaining > 0:
+            lines.append(("", f"  +{remaining} more unique connections", ""))
 
         font_header = QtGui.QFont()
         font_header.setPointSize(10)
