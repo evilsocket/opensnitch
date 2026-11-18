@@ -421,6 +421,10 @@ class UIService(ui_pb2_grpc.UIServicer, QtWidgets.QGraphicsObject):
     @QtCore.pyqtSlot(str, str)
     def _on_diff_versions(self, daemon_ver, ui_ver):
         if self._version_warning_shown == False:
+            d_major = daemon_ver.split(".")[0] if daemon_ver else ""
+            u_major = ui_ver.split(".")[0] if ui_ver else ""
+            if d_major == u_major:
+                return
             self._msg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
             self._msg.setWindowTitle("OpenSnitch version mismatch!")
             self._msg.setText(("You are running version <b>%s</b> of the daemon, while the UI is at version " + \

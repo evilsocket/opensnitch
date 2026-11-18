@@ -108,11 +108,13 @@ class StatsDialog(menus.MenusManager, menu_actions.MenuActions, views.ViewsManag
         self.gridLayout_4.addWidget(self._dashboard, 1, 0)
         self.gridLayout_4.addWidget(self.tabWidget, 2, 0)
 
-        # World Map tab
-        self._world_map = WorldMapWidget()
+        # World Map tab (lazy-loaded on first visit to avoid QtWebEngine startup cost)
+        self._world_map = None
+        self._world_map_placeholder = QtWidgets.QWidget()
         map_icon = Icons.new(self, "network-workgroup") if hasattr(Icons, 'new') else QtGui.QIcon()
-        self.tabWidget.addTab(self._world_map, map_icon, "World Map")
+        self.tabWidget.addTab(self._world_map_placeholder, map_icon, "World Map")
         self._map_tab_idx = self.tabWidget.count() - 1
+        self._pending_map_connections = []
 
         self._trigger.connect(self._on_update_triggered)
         self._map_connection_trigger.connect(self._on_map_connection)
@@ -692,6 +694,8 @@ class StatsDialog(menus.MenusManager, menu_actions.MenuActions, views.ViewsManag
         self.cfg.setSettings(Config.STATS_TAB_HIDDEN_LIST, tab_hidden_list)
 
     def _cb_tab_changed(self, index):
+        if index == self._map_tab_idx and self._world_map is None:
+            self._init_world_map()
         self.comboAction.setVisible(index == constants.TAB_MAIN)
         self.get_search_widget().setCompleter(self.queries.get_completer(index))
 
@@ -1409,8 +1413,26 @@ class StatsDialog(menus.MenusManager, menu_actions.MenuActions, views.ViewsManag
             self.refresh_active_table()
             self._last_update = datetime.datetime.now()
 
+    def _init_world_map(self):
+        self._world_map = WorldMapWidget()
+        self.tabWidget.removeTab(self._map_tab_idx)
+        map_icon = Icons.new(self, "network-workgroup") if hasattr(Icons, 'new') else QtGui.QIcon()
+        self.tabWidget.insertTab(self._map_tab_idx, self._world_map, map_icon, "World Map")
+        self.tabWidget.setCurrentIndex(self._map_tab_idx)
+        for args in self._pending_map_connections:
+            try:
+                self._world_map.add_connection(*args)
+            except Exception:
+                pass
+        self._pending_map_connections = []
+
     @QtCore.pyqtSlot(str, str, str, str, str)
     def _on_map_connection(self, conn_id, dst_ip, action, process, dst_host):
+        if self._world_map is None:
+            self._pending_map_connections.append((conn_id, dst_ip, action, process, dst_host))
+            if len(self._pending_map_connections) > 500:
+                self._pending_map_connections = self._pending_map_connections[-500:]
+            return
         try:
             self._world_map.add_connection(conn_id, dst_ip, action, process, dst_host)
         except Exception:
