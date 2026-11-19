@@ -258,6 +258,11 @@ message ClientConfig {
     uint32 logLevel = 6;
     repeated Rule rules = 7;
     SysFirewall systemFirewall = 8;
+    // random identifier generated once when the daemon starts, and sent
+    // unchanged on every Subscribe for the life of the process.
+    // It allows the server to tell a restarted daemon from a reconnection.
+    // Empty means unknown (daemons that don't send it).
+    string instanceId = 9;
 }
 
 /* Notification message is sent to the clients (daemons) from the GUI (server)

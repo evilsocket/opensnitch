@@ -61,6 +61,7 @@ func (c *Client) getClientConfig() *protocol.ClientConfig {
 		LogLevel:          uint32(log.MinLevel),
 		Rules:             ruleList,
 		SystemFirewall:    sysfw,
+		InstanceId:        c.instanceID,
 	}
 }
 

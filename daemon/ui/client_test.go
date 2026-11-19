@@ -2,6 +2,7 @@ package ui
 
 import (
 	"encoding/json"
+	"regexp"
 	"testing"
 	"time"
 
@@ -181,4 +182,36 @@ func TestClientInvalidProcMon(t *testing.T) {
 		validateInvalidProcMonConfig(t, uiClient, &uiClient.config)
 	})
 
+}
+
+func TestClientInstanceID(t *testing.T) {
+	restoreConfigFile(t)
+	cfgFile := "./testdata/default-config.json"
+
+	rules, err := rule.NewLoader(false)
+	if err != nil {
+		log.Fatal("")
+	}
+
+	stats := statistics.New(rules)
+	loggerMgr := loggers.NewLoggerManager()
+	uiClient := NewClient("unix:///tmp/osui.sock", cfgFile, stats, rules, loggerMgr)
+
+	// the id must not change between Subscribe messages, even if the
+	// per-message ClientConfig.Id does.
+	first := uiClient.getClientConfig().InstanceId
+	second := uiClient.getClientConfig().InstanceId
+
+	if !regexp.MustCompile(`^[0-9a-f]{32}$`).MatchString(first) {
+		t.Errorf("InstanceId should be 32 hex chars, got %q", first)
+	}
+	if first != second {
+		t.Errorf("InstanceId changed between ClientConfig messages: %q != %q", first, second)
+	}
+
+	// a new client (a new daemon process) must get a different id.
+	other := NewClient("unix:///tmp/osui.sock", cfgFile, stats, rules, loggerMgr)
+	if id := other.getClientConfig().InstanceId; id == first {
+		t.Errorf("a new client should have a different InstanceId, got %q twice", id)
+	}
 }
