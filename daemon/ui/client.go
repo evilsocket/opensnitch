@@ -1,6 +1,8 @@
 package ui
 
 import (
+	"crypto/rand"
+	"encoding/hex"
 	"fmt"
 	"net"
 	"sync"
@@ -58,12 +60,29 @@ type Client struct {
 	socketPath     string
 	unixSockPrefix string
 
+	// instanceID identifies this daemon process. It's generated once when the
+	// client is created and sent unchanged on every Subscribe, so the GUI can
+	// tell a restarted daemon from a reconnection.
+	instanceID string
+
 	//isAsking is set to true if the client is awaiting a decision from the GUI
 	isAsking     bool
 	isUnixSocket bool
 	isPolling    bool
 
 	sync.RWMutex
+}
+
+// newInstanceID returns a random 128-bit identifier, hex encoded.
+// If it can't be generated, an empty string is returned, which the server
+// must interpret as "unknown".
+func newInstanceID() string {
+	id := make([]byte, 16)
+	if _, err := rand.Read(id); err != nil {
+		log.Warning("unable to generate the instance id: %s", err)
+		return ""
+	}
+	return hex.EncodeToString(id)
 }
 
 // NewClient creates and configures a new client.
@@ -79,6 +98,7 @@ func NewClient(socketPath, localConfigFile string, stats *statistics.Statistics,
 		isAsking:     false,
 		isConnected:  make(chan bool),
 		alertsChan:   make(chan protocol.Alert, maxQueuedAlerts),
+		instanceID:   newInstanceID(),
 	}
 	c.config.Rules.Path = rules.Path
 	//for i := 0; i < 4; i++ {
