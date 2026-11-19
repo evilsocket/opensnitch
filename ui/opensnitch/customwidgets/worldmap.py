@@ -346,7 +346,6 @@ class _MapCanvas(QtWidgets.QWidget):
             self._markers[key] = {'lat': lat, 'lon': lon, 'color': color, 'conns': []}
         self._markers[key]['conns'].append(info)
         self._markers[key]['color'] = color
-        self.update()
 
     def set_counts(self, allowed, blocked):
         self._allowed = allowed
@@ -783,7 +782,42 @@ class _MapCanvas(QtWidgets.QWidget):
             p.drawText(QtCore.QPointF(tx + 10 + fm_b.horizontalAdvance(prefix), row_y), text)
 
 
+class _GeoWorker(QtCore.QObject):
+    """Runs GeoIP lookups off the main thread."""
+    finished = QtCore.pyqtSignal(list)  # list of (conn_id, dst_ip, action, process, dst_host, geo_dict_or_None)
+    home_resolved = QtCore.pyqtSignal(float, float)
+
+    def __init__(self, geoip):
+        super().__init__()
+        self._geoip = geoip
+
+    @QtCore.pyqtSlot(list)
+    def resolve_batch(self, items):
+        unique_ips = list({item[1] for item in items if item[1]})
+        geo_map = {}
+        for i in range(0, len(unique_ips), 100):
+            chunk = unique_ips[i:i+100]
+            geo_map.update(self._geoip.lookup_batch(chunk))
+        results = []
+        for item in items:
+            results.append((*item, geo_map.get(item[1])))
+        self.finished.emit(results)
+
+    @QtCore.pyqtSlot()
+    def resolve_home(self):
+        geo = self._geoip._lookup_api("")
+        if geo is None:
+            geo = self._geoip.lookup("8.8.8.8")
+        if geo:
+            self.home_resolved.emit(geo['lat'], geo['lon'])
+        else:
+            self.home_resolved.emit(51.5, -0.1)
+
+
 class WorldMapWidget(QtWidgets.QWidget):
+    _resolve_batch_signal = QtCore.pyqtSignal(list)
+    _resolve_home_signal = QtCore.pyqtSignal()
+
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setObjectName("mapTab")
@@ -797,48 +831,76 @@ class WorldMapWidget(QtWidgets.QWidget):
         self._blocked_count = 0
         layout.addWidget(self._canvas)
 
+        self._pending_queue = []
+        self._flush_timer = QtCore.QTimer(self)
+        self._flush_timer.setSingleShot(True)
+        self._flush_timer.setInterval(100)
+        self._flush_timer.timeout.connect(self._flush_pending)
+
+        self._worker_thread = QtCore.QThread(self)
+        self._worker = _GeoWorker(self._geoip)
+        self._worker.moveToThread(self._worker_thread)
+        self._resolve_batch_signal.connect(self._worker.resolve_batch)
+        self._resolve_home_signal.connect(self._worker.resolve_home)
+        self._worker.finished.connect(self._on_batch_resolved)
+        self._worker.home_resolved.connect(self._on_home_resolved)
+        self._worker_thread.start()
+
     def set_home(self, lat, lon):
         self._home_set = True
         self._canvas.set_home(lat, lon)
 
     def add_connection(self, conn_id, dst_ip, action, process, dst_host=""):
-        geo = self._geoip.lookup(dst_ip)
-        if geo is None:
-            return
+        self._pending_queue.append((conn_id, dst_ip, action, process, dst_host))
+        if not self._flush_timer.isActive():
+            self._flush_timer.start()
 
+    def _flush_pending(self):
+        if not self._pending_queue:
+            return
+        batch = self._pending_queue[:]
+        self._pending_queue.clear()
+        self._resolve_batch_signal.emit(batch)
+
+    @QtCore.pyqtSlot(list)
+    def _on_batch_resolved(self, results):
         if not self._home_set:
             self._try_set_home()
 
-        is_blocked = action.lower() in ('deny', 'drop', 'reject')
-        if is_blocked:
-            self._blocked_count += 1
-            color = "#f38ba8"
-        else:
-            self._allowed_count += 1
-            color = "#a6e3a1"
+        for conn_id, dst_ip, action, process, dst_host, geo in results:
+            if geo is None:
+                continue
 
-        key = f"{geo['lat']:.2f},{geo['lon']:.2f}"
-        city = geo.get('city', '')
-        country = geo.get('country', '')
+            is_blocked = action.lower() in ('deny', 'drop', 'reject')
+            if is_blocked:
+                self._blocked_count += 1
+                color = "#f38ba8"
+            else:
+                self._allowed_count += 1
+                color = "#a6e3a1"
 
-        self._canvas.add_marker(key, geo['lat'], geo['lon'], color, {
-            'process': process or "",
-            'dst': dst_host or dst_ip,
-            'action': action,
-            'ip': dst_ip,
-            'city': city,
-            'country': country,
-        })
+            key = f"{geo['lat']:.2f},{geo['lon']:.2f}"
+            self._canvas.add_marker(key, geo['lat'], geo['lon'], color, {
+                'process': process or "",
+                'dst': dst_host or dst_ip,
+                'action': action,
+                'ip': dst_ip,
+                'city': geo.get('city', ''),
+                'country': geo.get('country', ''),
+            })
+
         self._canvas.set_counts(self._allowed_count, self._blocked_count)
+        self._canvas.update()
 
     def _try_set_home(self):
-        geo = self._geoip._lookup_api("")
-        if geo is None:
-            geo = self._geoip.lookup("8.8.8.8")
-        if geo:
-            self.set_home(geo['lat'], geo['lon'])
-            return
-        self.set_home(51.5, -0.1)
+        self._home_set = True
+        self._canvas.set_home(51.5, -0.1)
+        self._resolve_home_signal.emit()
+
+    @QtCore.pyqtSlot(float, float)
+    def _on_home_resolved(self, lat, lon):
+        self.set_home(lat, lon)
+        self._canvas.update()
 
     def clear_connections(self):
         self._canvas._markers.clear()
@@ -851,3 +913,7 @@ class WorldMapWidget(QtWidgets.QWidget):
 
     def is_available(self):
         return True
+
+    def cleanup(self):
+        self._worker_thread.quit()
+        self._worker_thread.wait(2000)
