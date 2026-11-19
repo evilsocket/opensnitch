@@ -1,3 +1,4 @@
+import time
 from PyQt6 import QtCore, QtWidgets, QtGui
 
 
@@ -12,13 +13,35 @@ class DashboardCard(QtWidgets.QFrame):
         self.setMinimumWidth(100)
 
         self._title = title
-        self._value = "0"
+        self._value = ""
         self._color = QtGui.QColor(color)
         self._data = []
         self._max_points = 60
+        self._loading = True
+        self._pulse_alpha = 0.0
+        self._pulse_dir = 1
+        self._pulse_timer = QtCore.QTimer(self)
+        self._pulse_timer.timeout.connect(self._pulse_tick)
+        self._pulse_timer.setInterval(40)
+        self._pulse_timer.start()
 
-    def set_value(self, value):
+    def _pulse_tick(self):
+        if not self._loading:
+            return
+        self._pulse_alpha += 0.04 * self._pulse_dir
+        if self._pulse_alpha >= 1.0:
+            self._pulse_alpha = 1.0
+            self._pulse_dir = -1
+        elif self._pulse_alpha <= 0.0:
+            self._pulse_alpha = 0.0
+            self._pulse_dir = 1
+        self.update()
+
+    def set_value(self, value, has_data=True):
         self._value = str(value)
+        if self._loading and has_data:
+            self._loading = False
+            self._pulse_timer.stop()
         self.update()
 
     def add_point(self, value):
@@ -96,6 +119,18 @@ class DashboardCard(QtWidgets.QFrame):
         p.setPen(QtGui.QColor("#a6adc8"))
         p.drawText(QtCore.QPointF(12, 18), self._title)
 
+        if self._loading:
+            base = QtGui.QColor("#45475a")
+            hi = QtGui.QColor("#585b70")
+            r = int(base.red() + (hi.red() - base.red()) * self._pulse_alpha)
+            g = int(base.green() + (hi.green() - base.green()) * self._pulse_alpha)
+            b = int(base.blue() + (hi.blue() - base.blue()) * self._pulse_alpha)
+            p.setPen(QtCore.Qt.PenStyle.NoPen)
+            p.setBrush(QtGui.QColor(r, g, b))
+            p.drawRoundedRect(QtCore.QRectF(12, 30, 70, 14), 3, 3)
+            p.end()
+            return
+
         # value
         value_font = QtGui.QFont()
         value_font.setPointSize(16)
@@ -103,6 +138,13 @@ class DashboardCard(QtWidgets.QFrame):
         p.setFont(value_font)
         p.setPen(self._color)
         p.drawText(QtCore.QPointF(12, 44), self._value)
+
+        # timeframe hint
+        hint_font = QtGui.QFont()
+        hint_font.setPointSize(6)
+        p.setFont(hint_font)
+        p.setPen(QtGui.QColor("#585b70"))
+        p.drawText(QtCore.QPointF(w - 40, h - 5), "60 min")
 
         p.end()
 
@@ -136,21 +178,53 @@ class DashboardWidget(QtWidgets.QFrame):
         layout.addWidget(self.card_blocked, 1)
         layout.addWidget(self.card_bandwidth, 1)
 
-        self._connections_history = []
-        self._allowed_history = []
-        self._blocked_history = []
+        self._max_buckets = 60
+        self._buckets_conn = [0] * self._max_buckets
+        self._buckets_allowed = [0] * self._max_buckets
+        self._buckets_blocked = [0] * self._max_buckets
+        self._bucket_minute = -1
+        self._prev_conn = -1
+        self._prev_allowed = -1
+        self._prev_blocked = -1
 
     def update_stats(self, connections=0, dropped=0, uptime=""):
+        has_data = connections > 0 or dropped > 0 or uptime
         allowed = connections - dropped if connections >= dropped else 0
-        self.card_connections.set_value(f"{connections:,}")
-        self.card_allowed.set_value(f"{allowed:,}")
-        self.card_blocked.set_value(f"{dropped:,}")
-        self.card_bandwidth.set_value(uptime)
+        self.card_connections.set_value(f"{connections:,}", has_data)
+        self.card_allowed.set_value(f"{allowed:,}", has_data)
+        self.card_blocked.set_value(f"{dropped:,}", has_data)
+        self.card_bandwidth.set_value(uptime, has_data)
 
-        self._connections_history.append(connections)
-        self._allowed_history.append(allowed)
-        self._blocked_history.append(dropped)
+        now_min = int(time.time()) // 60
 
-        self.card_connections.set_data(self._connections_history)
-        self.card_allowed.set_data(self._allowed_history)
-        self.card_blocked.set_data(self._blocked_history)
+        if self._prev_conn < 0:
+            self._prev_conn = connections
+            self._prev_allowed = allowed
+            self._prev_blocked = dropped
+            self._bucket_minute = now_min
+            return
+
+        delta_c = max(0, connections - self._prev_conn)
+        delta_a = max(0, allowed - self._prev_allowed)
+        delta_b = max(0, dropped - self._prev_blocked)
+
+        if now_min != self._bucket_minute:
+            self._buckets_conn.append(0)
+            self._buckets_allowed.append(0)
+            self._buckets_blocked.append(0)
+            self._buckets_conn = self._buckets_conn[-self._max_buckets:]
+            self._buckets_allowed = self._buckets_allowed[-self._max_buckets:]
+            self._buckets_blocked = self._buckets_blocked[-self._max_buckets:]
+            self._bucket_minute = now_min
+
+        self._buckets_conn[-1] += delta_c
+        self._buckets_allowed[-1] += delta_a
+        self._buckets_blocked[-1] += delta_b
+
+        self._prev_conn = connections
+        self._prev_allowed = allowed
+        self._prev_blocked = dropped
+
+        self.card_connections.set_data(self._buckets_conn)
+        self.card_allowed.set_data(self._buckets_allowed)
+        self.card_blocked.set_data(self._buckets_blocked)

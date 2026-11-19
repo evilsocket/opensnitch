@@ -23,24 +23,84 @@ class _ChartColors:
     LAVENDER = QtGui.QColor("#b4befe")
 
     SERIES = [BLUE, GREEN, RED, PEACH, MAUVE, TEAL, YELLOW, PINK, SKY, LAVENDER]
+    SKELETON = QtGui.QColor("#45475a")
+    SKELETON_HI = QtGui.QColor("#585b70")
 
 
-class _BarChartWidget(QtWidgets.QWidget):
+class _SkeletonMixin:
+    """Pulsing skeleton loading state for chart widgets."""
+
+    def _init_skeleton(self):
+        self._loading = True
+        self._pulse_alpha = 0.0
+        self._pulse_dir = 1
+        self._pulse_timer = QtCore.QTimer(self)
+        self._pulse_timer.timeout.connect(self._pulse_tick)
+        self._pulse_timer.setInterval(40)
+        self._pulse_timer.start()
+
+    def _pulse_tick(self):
+        if not self._loading:
+            return
+        self._pulse_alpha += 0.04 * self._pulse_dir
+        if self._pulse_alpha >= 1.0:
+            self._pulse_alpha = 1.0
+            self._pulse_dir = -1
+        elif self._pulse_alpha <= 0.0:
+            self._pulse_alpha = 0.0
+            self._pulse_dir = 1
+        self.update()
+
+    def _stop_loading(self):
+        if self._loading:
+            self._loading = False
+            self._pulse_timer.stop()
+
+    def _draw_skeleton(self, p, w, h, rects):
+        """Draw pulsing skeleton bars. rects is list of (x, y, w, h, radius)."""
+        base = _ChartColors.SKELETON
+        hi = _ChartColors.SKELETON_HI
+        r = int(base.red() + (hi.red() - base.red()) * self._pulse_alpha)
+        g = int(base.green() + (hi.green() - base.green()) * self._pulse_alpha)
+        b = int(base.blue() + (hi.blue() - base.blue()) * self._pulse_alpha)
+        color = QtGui.QColor(r, g, b)
+        p.setPen(QtCore.Qt.PenStyle.NoPen)
+        p.setBrush(color)
+        for rect in rects:
+            x, y, rw, rh, rad = rect
+            p.drawRoundedRect(QtCore.QRectF(x, y, rw, rh), rad, rad)
+
+
+class _BarChartWidget(_SkeletonMixin, QtWidgets.QWidget):
     """Horizontal bar chart for top-N items."""
 
     def __init__(self, title="", parent=None):
         super().__init__(parent)
         self._title = title
         self._items = []
+        self._row_rects = []
+        self._display_names = []
         self.setMinimumHeight(180)
+        self.setMouseTracking(True)
+        self._init_skeleton()
 
     def set_data(self, items):
         self._items = items[:8]
+        self._stop_loading()
         self.update()
 
+    def mouseMoveEvent(self, event):
+        pos = event.position() if hasattr(event, 'position') else event.localPos()
+        for i, rect in enumerate(self._row_rects):
+            if rect.contains(pos):
+                full_name = self._display_names[i] if i < len(self._display_names) else ""
+                count = self._items[i][1] if i < len(self._items) else ""
+                QtWidgets.QToolTip.showText(event.globalPosition().toPoint() if hasattr(event, 'globalPosition') else event.globalPos(),
+                                            f"{full_name}  —  {count}")
+                return
+        QtWidgets.QToolTip.hideText()
+
     def paintEvent(self, event):
-        if not self._items:
-            return
         p = QtGui.QPainter(self)
         p.setRenderHint(QtGui.QPainter.RenderHint.Antialiasing)
         w, h = self.width(), self.height()
@@ -53,30 +113,50 @@ class _BarChartWidget(QtWidgets.QWidget):
         p.setPen(_ChartColors.TEXT)
         p.drawText(QtCore.QPointF(12, 20), self._title)
 
+        if not self._items:
+            if self._loading:
+                rects = []
+                for i in range(5):
+                    y = 36 + i * 26
+                    rects.append((12, y, 80, 10, 3))
+                    rects.append((100, y, w * (0.6 - i * 0.08), 10, 3))
+                self._draw_skeleton(p, w, h, rects)
+            p.end()
+            return
+
         bar_top = 32
         bar_area_h = h - bar_top - 8
         max_val = max(item[1] for item in self._items) if self._items else 1
         bar_h = min(int(bar_area_h / len(self._items)) - 4, 22)
-        label_w = min(w * 0.3, 140)
-        bar_w_max = w - label_w - 70
 
         body_font = QtGui.QFont()
         body_font.setPointSize(8)
         p.setFont(body_font)
         fm = QtGui.QFontMetrics(body_font)
 
+        display_names = []
+        for name, _count in self._items:
+            dn = os.path.basename(name) if '/' in name else name
+            display_names.append(dn)
+        self._display_names = display_names
+        self._row_rects = []
+        max_label_px = max((fm.horizontalAdvance(n) for n in display_names), default=0) + 16
+        label_w = min(max_label_px, w * 0.4)
+        label_w = max(label_w, 80)
+        val_margin = fm.horizontalAdvance("00000") + 12
+        bar_w_max = w - label_w - val_margin
+
         for i, (name, count) in enumerate(self._items):
             y = bar_top + i * (bar_h + 4)
+            self._row_rects.append(QtCore.QRectF(0, y, w, bar_h + 4))
             color = _ChartColors.SERIES[i % len(_ChartColors.SERIES)]
 
-            # label
+            # label — elide to fit
             p.setPen(_ChartColors.TEXT_DIM)
-            display_name = os.path.basename(name) if '/' in name else name
-            if fm.horizontalAdvance(display_name) > label_w - 8:
-                while fm.horizontalAdvance(display_name + "...") > label_w - 8 and len(display_name) > 3:
-                    display_name = display_name[:-1]
-                display_name += "..."
-            p.drawText(QtCore.QPointF(12, y + bar_h - 4), display_name)
+            display_name = display_names[i]
+            avail = label_w - 24
+            elided = fm.elidedText(display_name, QtCore.Qt.TextElideMode.ElideRight, int(avail))
+            p.drawText(QtCore.QPointF(12, y + bar_h - 4), elided)
 
             # bar
             bw = (count / max_val) * bar_w_max if max_val > 0 else 0
@@ -94,8 +174,101 @@ class _BarChartWidget(QtWidgets.QWidget):
         p.end()
 
 
-class _TimelineWidget(QtWidgets.QWidget):
+class _ToggleSwitch(QtWidgets.QWidget):
+    """Custom-painted toggle switch with sliding knob."""
+
+    toggled = QtCore.pyqtSignal(bool)
+
+    def __init__(self, left_text="24h", right_text="12h", parent=None):
+        super().__init__(parent)
+        self._on = False
+        self._left = left_text
+        self._right = right_text
+        self._knob_x = 0.0
+        self._anim = QtCore.QPropertyAnimation(self, b"knob_pos")
+        self._anim.setDuration(150)
+        self._anim.setEasingCurve(QtCore.QEasingCurve.Type.InOutCubic)
+        self.setCursor(QtCore.Qt.CursorShape.PointingHandCursor)
+        self._font = QtGui.QFont()
+        self._font.setPointSize(8)
+        fm = QtGui.QFontMetrics(self._font)
+        tw = max(fm.horizontalAdvance(left_text), fm.horizontalAdvance(right_text))
+        self.setFixedSize(tw * 2 + 36, 18)
+
+    def _get_knob_pos(self):
+        return self._knob_x
+
+    def _set_knob_pos(self, val):
+        self._knob_x = val
+        self.update()
+
+    knob_pos = QtCore.pyqtProperty(float, _get_knob_pos, _set_knob_pos)
+
+    def isChecked(self):
+        return self._on
+
+    def mousePressEvent(self, event):
+        self._on = not self._on
+        self._anim.stop()
+        self._anim.setStartValue(self._knob_x)
+        self._anim.setEndValue(1.0 if self._on else 0.0)
+        self._anim.start()
+        self.toggled.emit(self._on)
+
+    def paintEvent(self, event):
+        p = QtGui.QPainter(self)
+        p.setRenderHint(QtGui.QPainter.RenderHint.Antialiasing)
+        w, h = self.width(), self.height()
+        p.setFont(self._font)
+        fm = QtGui.QFontMetrics(self._font)
+
+        lw = fm.horizontalAdvance(self._left)
+        rw = fm.horizontalAdvance(self._right)
+
+        # left label
+        p.setPen(_ChartColors.TEXT if not self._on else _ChartColors.TEXT_MUTED)
+        p.drawText(QtCore.QPointF(0, h - 4), self._left)
+
+        # track
+        track_x = lw + 6
+        track_w = w - lw - rw - 12
+        track_h = 12
+        track_y = (h - track_h) / 2
+        track_r = track_h / 2
+
+        if self._on:
+            track_color = QtGui.QColor(137, 180, 250, 80)
+        else:
+            track_color = QtGui.QColor(255, 255, 255, 30)
+        p.setPen(QtCore.Qt.PenStyle.NoPen)
+        p.setBrush(track_color)
+        p.drawRoundedRect(QtCore.QRectF(track_x, track_y, track_w, track_h), track_r, track_r)
+
+        # knob
+        knob_r = 4
+        knob_min_x = track_x + knob_r + 2
+        knob_max_x = track_x + track_w - knob_r - 2
+        knob_cx = knob_min_x + self._knob_x * (knob_max_x - knob_min_x)
+        knob_cy = h / 2
+
+        if self._on:
+            knob_color = QtGui.QColor("#89b4fa")
+        else:
+            knob_color = QtGui.QColor("#cdd6f4")
+        p.setBrush(knob_color)
+        p.drawEllipse(QtCore.QPointF(knob_cx, knob_cy), knob_r, knob_r)
+
+        # right label
+        p.setPen(_ChartColors.TEXT if self._on else _ChartColors.TEXT_MUTED)
+        p.drawText(QtCore.QPointF(w - rw, h - 4), self._right)
+
+        p.end()
+
+
+class _TimelineWidget(_SkeletonMixin, QtWidgets.QWidget):
     """Area chart showing connections over time."""
+
+    time_format_changed = QtCore.pyqtSignal()
 
     def __init__(self, title="", parent=None):
         super().__init__(parent)
@@ -103,13 +276,56 @@ class _TimelineWidget(QtWidgets.QWidget):
         self._allowed_data = []
         self._blocked_data = []
         self._labels = []
+        self._has_data = []
+        self._chart_left = 0
+        self._chart_right = 0
+        self._chart_top = 0
+        self._chart_bottom = 0
+        self._use_12h = False
         self.setMinimumHeight(160)
+        self.setMouseTracking(True)
+        self._init_skeleton()
 
-    def set_data(self, allowed, blocked, labels):
+        self._fmt_toggle = _ToggleSwitch("24h", "12h", self)
+        self._fmt_toggle.toggled.connect(self._toggle_format)
+
+    def resizeEvent(self, event):
+        super().resizeEvent(event)
+        self._fmt_toggle.move(self.width() - self._fmt_toggle.width() - 8, 2)
+
+    def _toggle_format(self, checked):
+        self._use_12h = checked
+        self.time_format_changed.emit()
+
+    def set_data(self, allowed, blocked, labels, has_data=None):
         self._allowed_data = allowed
         self._blocked_data = blocked
         self._labels = labels
+        self._has_data = has_data if has_data else [True] * len(allowed)
+        self._stop_loading()
         self.update()
+
+    def mouseMoveEvent(self, event):
+        pos = event.position() if hasattr(event, 'position') else event.localPos()
+        n = len(self._allowed_data)
+        cl, cr = self._chart_left, self._chart_right
+        if n < 2 or cr <= cl or pos.x() < cl or pos.x() > cr or pos.y() < self._chart_top or pos.y() > self._chart_bottom:
+            QtWidgets.QToolTip.hideText()
+            return
+        frac = (pos.x() - cl) / (cr - cl)
+        idx = max(0, min(int(round(frac * (n - 1))), n - 1))
+        parts = []
+        if idx < len(self._labels):
+            parts.append(self._labels[idx])
+        if idx < len(self._has_data) and not self._has_data[idx]:
+            parts.append("No data")
+        else:
+            if idx < len(self._allowed_data):
+                parts.append(f"Allowed: {self._allowed_data[idx]}")
+            if idx < len(self._blocked_data):
+                parts.append(f"Blocked: {self._blocked_data[idx]}")
+        gp = event.globalPosition().toPoint() if hasattr(event, 'globalPosition') else event.globalPos()
+        QtWidgets.QToolTip.showText(gp, "\n".join(parts))
 
     def paintEvent(self, event):
         p = QtGui.QPainter(self)
@@ -125,11 +341,21 @@ class _TimelineWidget(QtWidgets.QWidget):
         p.drawText(QtCore.QPointF(12, 20), self._title)
 
         if not self._allowed_data and not self._blocked_data:
-            p.setPen(_ChartColors.TEXT_MUTED)
-            body_font = QtGui.QFont()
-            body_font.setPointSize(9)
-            p.setFont(body_font)
-            p.drawText(QtCore.QPointF(12, 50), "No connection data yet")
+            if self._loading:
+                rects = [(12, h - 30, w - 24, 2, 1)]
+                import random
+                random.seed(42)
+                for i in range(8):
+                    x = 12 + i * ((w - 24) / 8)
+                    bh = 20 + random.random() * (h * 0.5)
+                    rects.append((x + 2, h - 30 - bh, (w - 24) / 8 - 4, bh, 2))
+                self._draw_skeleton(p, w, h, rects)
+            else:
+                p.setPen(_ChartColors.TEXT_MUTED)
+                body_font = QtGui.QFont()
+                body_font.setPointSize(9)
+                p.setFont(body_font)
+                p.drawText(QtCore.QPointF(12, 50), "No connection data yet")
             p.end()
             return
 
@@ -139,6 +365,12 @@ class _TimelineWidget(QtWidgets.QWidget):
         chart_bottom = h - 24
         chart_w = chart_right - chart_left
         chart_h = chart_bottom - chart_top
+        self._chart_left = chart_left
+        self._chart_right = chart_right
+        self._chart_top = chart_top
+        self._chart_bottom = chart_bottom
+
+        v_has_data = self._has_data if self._has_data else [True] * len(self._allowed_data)
 
         all_vals = self._allowed_data + self._blocked_data
         max_val = max(all_vals) if all_vals and max(all_vals) > 0 else 1
@@ -154,18 +386,39 @@ class _TimelineWidget(QtWidgets.QWidget):
         label_font.setPointSize(7)
         p.setFont(label_font)
         p.setPen(_ChartColors.TEXT_MUTED)
-        p.drawText(QtCore.QPointF(chart_right - 30, chart_top + 10), str(max_val))
+        p.drawText(QtCore.QPointF(chart_left + 2, chart_top + 10), str(max_val))
 
-        n = max(len(self._allowed_data), len(self._blocked_data))
+        n = len(self._allowed_data)
         if n < 2:
             p.end()
             return
 
+        step_px = chart_w / max(n - 1, 1)
+
+        # no-data hatching (Grafana-style diagonal stripes)
+        for i in range(n):
+            if i < len(v_has_data) and not v_has_data[i]:
+                x0 = chart_left + i * step_px - step_px * 0.5
+                x1 = chart_left + i * step_px + step_px * 0.5
+                x0 = max(x0, chart_left)
+                x1 = min(x1, chart_right)
+                p.save()
+                p.setClipRect(QtCore.QRectF(x0, chart_top, x1 - x0, chart_h))
+                stripe_color = QtGui.QColor(69, 71, 90, 25)
+                pen = QtGui.QPen(stripe_color, 1)
+                p.setPen(pen)
+                gap = 6
+                sx = int(x0) - int(chart_h)
+                while sx < int(x1) + int(chart_h):
+                    p.drawLine(QtCore.QPointF(sx, chart_bottom),
+                               QtCore.QPointF(sx + chart_h, chart_top))
+                    sx += gap
+                p.restore()
+
         def make_points(data):
             pts = []
-            step = chart_w / max(len(data) - 1, 1)
             for i, v in enumerate(data):
-                x = chart_left + i * step
+                x = chart_left + i * step_px
                 y = chart_bottom - (v / max_val) * chart_h
                 pts.append(QtCore.QPointF(x, y))
             return pts
@@ -192,31 +445,39 @@ class _TimelineWidget(QtWidgets.QWidget):
         draw_area(allowed_pts, _ChartColors.GREEN)
         draw_area(blocked_pts, _ChartColors.RED)
 
-        # time labels
+        # time labels — space dynamically to avoid overlap
         p.setFont(label_font)
         p.setPen(_ChartColors.TEXT_MUTED)
         if self._labels:
-            step = max(len(self._labels) // 6, 1)
-            lbl_step = chart_w / max(len(self._labels) - 1, 1)
-            for i in range(0, len(self._labels), step):
-                lx = chart_left + i * lbl_step
-                p.drawText(QtCore.QPointF(lx, h - 4), self._labels[i])
+            lbl_fm = QtGui.QFontMetrics(label_font)
+            max_lbl_w = max((lbl_fm.horizontalAdvance(l) for l in self._labels), default=30) + 12
+            max_visible = max(int(chart_w / max_lbl_w), 2)
+            lbl_step_i = max(len(self._labels) // max_visible, 1)
+            lbl_y = h - 4
+            for i in range(0, len(self._labels), lbl_step_i):
+                lx = chart_left + i * step_px
+                lbl_text = self._labels[i]
+                lbl_w = lbl_fm.horizontalAdvance(lbl_text)
+                if lx + lbl_w > chart_right:
+                    break
+                p.drawText(QtCore.QPointF(lx, lbl_y), lbl_text)
 
-        # legend
+        # legend — next to the title
         legend_y = 18
         legend_font = QtGui.QFont()
         legend_font.setPointSize(8)
         p.setFont(legend_font)
         fm = QtGui.QFontMetrics(legend_font)
 
-        lx = w - 160
+        title_fm = QtGui.QFontMetrics(title_font)
+        lx = 12 + title_fm.horizontalAdvance(self._title) + 20
         p.setPen(QtCore.Qt.PenStyle.NoPen)
         p.setBrush(_ChartColors.GREEN)
         p.drawEllipse(QtCore.QPointF(lx, legend_y - 3), 4, 4)
         p.setPen(_ChartColors.TEXT_DIM)
         p.drawText(QtCore.QPointF(lx + 8, legend_y), "Allowed")
 
-        lx2 = lx + fm.horizontalAdvance("Allowed") + 20
+        lx2 = lx + 8 + fm.horizontalAdvance("Allowed") + 16
         p.setPen(QtCore.Qt.PenStyle.NoPen)
         p.setBrush(_ChartColors.RED)
         p.drawEllipse(QtCore.QPointF(lx2, legend_y - 3), 4, 4)
@@ -226,7 +487,7 @@ class _TimelineWidget(QtWidgets.QWidget):
         p.end()
 
 
-class _DonutWidget(QtWidgets.QWidget):
+class _DonutWidget(_SkeletonMixin, QtWidgets.QWidget):
     """Donut/ring chart for allow vs block ratio."""
 
     def __init__(self, title="", parent=None):
@@ -234,12 +495,45 @@ class _DonutWidget(QtWidgets.QWidget):
         self._title = title
         self._allowed = 0
         self._blocked = 0
+        self._cx = 0
+        self._cy = 0
+        self._radius = 0
         self.setMinimumSize(140, 140)
+        self.setMouseTracking(True)
+        self._init_skeleton()
 
     def set_data(self, allowed, blocked):
         self._allowed = allowed
         self._blocked = blocked
+        self._stop_loading()
         self.update()
+
+    def mouseMoveEvent(self, event):
+        pos = event.position() if hasattr(event, 'position') else event.localPos()
+        total = self._allowed + self._blocked
+        if total == 0 or self._radius == 0:
+            QtWidgets.QToolTip.hideText()
+            return
+        dx = pos.x() - self._cx
+        dy = pos.y() - self._cy
+        dist = (dx * dx + dy * dy) ** 0.5
+        inner_r = self._radius * 0.7
+        if inner_r < dist < self._radius:
+            import math
+            angle = math.degrees(math.atan2(-dy, dx))
+            if angle < 0:
+                angle += 360
+            norm = (90 - angle) % 360
+            allowed_deg = (self._allowed / total) * 360
+            gp = event.globalPosition().toPoint() if hasattr(event, 'globalPosition') else event.globalPos()
+            if norm <= allowed_deg:
+                pct = int(self._allowed / total * 100)
+                QtWidgets.QToolTip.showText(gp, f"Allowed: {self._allowed}  ({pct}%)")
+            else:
+                pct = int(self._blocked / total * 100)
+                QtWidgets.QToolTip.showText(gp, f"Blocked: {self._blocked}  ({pct}%)")
+        else:
+            QtWidgets.QToolTip.hideText()
 
     def paintEvent(self, event):
         p = QtGui.QPainter(self)
@@ -255,11 +549,26 @@ class _DonutWidget(QtWidgets.QWidget):
 
         total = self._allowed + self._blocked
         if total == 0:
-            p.setPen(_ChartColors.TEXT_MUTED)
-            body_font = QtGui.QFont()
-            body_font.setPointSize(9)
-            p.setFont(body_font)
-            p.drawText(QtCore.QPointF(12, 50), "No data")
+            if self._loading:
+                cx, cy = w / 2, (h + 20) / 2
+                r = min(w, h - 30) / 2 - 12
+                base = _ChartColors.SKELETON
+                hi = _ChartColors.SKELETON_HI
+                rv = int(base.red() + (hi.red() - base.red()) * self._pulse_alpha)
+                gv = int(base.green() + (hi.green() - base.green()) * self._pulse_alpha)
+                bv = int(base.blue() + (hi.blue() - base.blue()) * self._pulse_alpha)
+                color = QtGui.QColor(rv, gv, bv)
+                pen = QtGui.QPen(color, r * 0.3)
+                pen.setCapStyle(QtCore.Qt.PenCapStyle.FlatCap)
+                p.setPen(pen)
+                p.setBrush(QtCore.Qt.BrushStyle.NoBrush)
+                p.drawEllipse(QtCore.QPointF(cx, cy), r - r * 0.15, r - r * 0.15)
+            else:
+                p.setPen(_ChartColors.TEXT_MUTED)
+                body_font = QtGui.QFont()
+                body_font.setPointSize(9)
+                p.setFont(body_font)
+                p.drawText(QtCore.QPointF(12, 50), "No data")
             p.end()
             return
 
@@ -267,6 +576,9 @@ class _DonutWidget(QtWidgets.QWidget):
         cy = (h + 20) / 2
         radius = min(w, h - 30) / 2 - 12
         thickness = radius * 0.3
+        self._cx = cx
+        self._cy = cy
+        self._radius = radius
 
         outer = QtCore.QRectF(cx - radius, cy - radius, radius * 2, radius * 2)
         inner_r = radius - thickness
@@ -309,7 +621,7 @@ class _DonutWidget(QtWidgets.QWidget):
         p.end()
 
 
-class _ProtocolWidget(QtWidgets.QWidget):
+class _ProtocolWidget(_SkeletonMixin, QtWidgets.QWidget):
     """Mini horizontal stacked bar for protocol breakdown."""
 
     def __init__(self, title="", parent=None):
@@ -317,9 +629,11 @@ class _ProtocolWidget(QtWidgets.QWidget):
         self._title = title
         self._items = []
         self.setMinimumHeight(100)
+        self._init_skeleton()
 
     def set_data(self, items):
         self._items = items[:6]
+        self._stop_loading()
         self.update()
 
     def paintEvent(self, event):
@@ -335,6 +649,15 @@ class _ProtocolWidget(QtWidgets.QWidget):
         p.drawText(QtCore.QPointF(12, 20), self._title)
 
         if not self._items:
+            if self._loading:
+                self._draw_skeleton(p, w, h, [
+                    (12, 34, w - 24, 16, 4),
+                    (12, 60, 50, 10, 3),
+                    (80, 60, 50, 10, 3),
+                    (148, 60, 50, 10, 3),
+                ])
+                p.end()
+                return
             p.end()
             return
 
@@ -400,6 +723,7 @@ class DashboardTab(QtWidgets.QWidget):
         # top row: timeline + donut
         top = QtWidgets.QHBoxLayout()
         self._timeline = _TimelineWidget("Connection Activity")
+        self._timeline.time_format_changed.connect(self._update_timeline)
         self._donut = _DonutWidget("Allow / Block")
         self._donut.setMaximumWidth(220)
         top.addWidget(self._timeline, 3)
@@ -470,11 +794,33 @@ class DashboardTab(QtWidgets.QWidget):
             else:
                 hours[hour]['allowed'] += count
 
-        sorted_hours = sorted(hours.keys())[-24:]
-        allowed = [hours[h]['allowed'] for h in sorted_hours]
-        blocked = [hours[h]['blocked'] for h in sorted_hours]
-        labels = [h[-5:] if len(h) >= 5 else h for h in sorted_hours]
-        self._timeline.set_data(allowed, blocked, labels)
+        now = datetime.datetime.now().replace(minute=0, second=0, microsecond=0)
+        all_hours = []
+        for i in range(23, -1, -1):
+            all_hours.append(now - datetime.timedelta(hours=i))
+
+        use_12h = self._timeline._use_12h
+        allowed = []
+        blocked = []
+        formatted = []
+        has_data = []
+        for dt in all_hours:
+            key_space = dt.strftime("%Y-%m-%d %H")
+            key_t = dt.strftime("%Y-%m-%dT%H")
+            data = hours.get(key_space) or hours.get(key_t)
+            if data:
+                allowed.append(data['allowed'])
+                blocked.append(data['blocked'])
+                has_data.append(True)
+            else:
+                allowed.append(0)
+                blocked.append(0)
+                has_data.append(False)
+            if use_12h:
+                formatted.append(dt.strftime("%-I:%M %p"))
+            else:
+                formatted.append(dt.strftime("%H:%M"))
+        self._timeline.set_data(allowed, blocked, formatted, has_data)
 
         total_a = sum(allowed)
         total_b = sum(blocked)
@@ -509,8 +855,8 @@ class DashboardTab(QtWidgets.QWidget):
             "SELECT dst_port, COUNT(*) as cnt FROM connections "
             "GROUP BY dst_port ORDER BY cnt DESC LIMIT 8"
         )
-        port_names = {'443': 'HTTPS (443)', '80': 'HTTP (80)', '53': 'DNS (53)',
-                      '22': 'SSH (22)', '993': 'IMAPS (993)', '587': 'SMTP (587)',
-                      '8443': 'Alt-HTTPS (8443)', '5222': 'XMPP (5222)'}
+        port_names = {'443': '443 HTTPS', '80': '80 HTTP', '53': '53 DNS',
+                      '22': '22 SSH', '993': '993 IMAPS', '587': '587 SMTP',
+                      '8443': '8443 HTTPS', '5222': '5222 XMPP'}
         items = [(port_names.get(str(r[0]), str(r[0])), r[1]) for r in rows]
         self._top_ports.set_data(items)
