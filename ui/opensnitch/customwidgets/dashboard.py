@@ -1,3 +1,4 @@
+import datetime
 import time
 from PyQt6 import QtCore, QtWidgets, QtGui
 
@@ -18,6 +19,7 @@ class DashboardCard(QtWidgets.QFrame):
         self._data = []
         self._max_points = 60
         self._loading = True
+        self._dirty = False
         self._pulse_alpha = 0.0
         self._pulse_dir = 1
         self._pulse_timer = QtCore.QTimer(self)
@@ -42,17 +44,22 @@ class DashboardCard(QtWidgets.QFrame):
         if self._loading and has_data:
             self._loading = False
             self._pulse_timer.stop()
-        self.update()
+        self._dirty = True
 
     def add_point(self, value):
         self._data.append(value)
         if len(self._data) > self._max_points:
             self._data = self._data[-self._max_points:]
-        self.update()
+        self._dirty = True
 
     def set_data(self, data):
         self._data = list(data[-self._max_points:])
-        self.update()
+        self._dirty = True
+
+    def flush(self):
+        if self._dirty:
+            self._dirty = False
+            self.update()
 
     def paintEvent(self, event):
         w, h = self.width(), self.height()
@@ -187,13 +194,33 @@ class DashboardWidget(QtWidgets.QFrame):
         self._prev_allowed = -1
         self._prev_blocked = -1
 
-    def update_stats(self, connections=0, dropped=0, uptime=""):
-        has_data = connections > 0 or dropped > 0 or uptime
+        self._daemon_uptime = 0
+        self._uptime_base_time = 0.0
+        self._uptime_ticker = QtCore.QTimer(self)
+        self._uptime_ticker.timeout.connect(self._tick_uptime)
+        self._uptime_ticker.setInterval(1000)
+
+    def _tick_uptime(self):
+        elapsed = time.monotonic() - self._uptime_base_time
+        total = int(self._daemon_uptime + elapsed)
+        uptime_str = str(datetime.timedelta(seconds=total))
+        self.card_bandwidth.set_value(uptime_str, True)
+        self.card_bandwidth.flush()
+
+    def update_stats(self, connections=0, dropped=0, uptime_seconds=0):
+        has_data = connections > 0 or dropped > 0 or uptime_seconds > 0
         allowed = connections - dropped if connections >= dropped else 0
         self.card_connections.set_value(f"{connections:,}", has_data)
         self.card_allowed.set_value(f"{allowed:,}", has_data)
         self.card_blocked.set_value(f"{dropped:,}", has_data)
-        self.card_bandwidth.set_value(uptime, has_data)
+
+        if uptime_seconds > 0:
+            self._daemon_uptime = uptime_seconds
+            self._uptime_base_time = time.monotonic()
+            if not self._uptime_ticker.isActive():
+                self._uptime_ticker.start()
+            uptime_str = str(datetime.timedelta(seconds=uptime_seconds))
+            self.card_bandwidth.set_value(uptime_str, True)
 
         now_min = int(time.time()) // 60
 
@@ -202,6 +229,7 @@ class DashboardWidget(QtWidgets.QFrame):
             self._prev_allowed = allowed
             self._prev_blocked = dropped
             self._bucket_minute = now_min
+            self._flush_cards()
             return
 
         delta_c = max(0, connections - self._prev_conn)
@@ -228,3 +256,10 @@ class DashboardWidget(QtWidgets.QFrame):
         self.card_connections.set_data(self._buckets_conn)
         self.card_allowed.set_data(self._buckets_allowed)
         self.card_blocked.set_data(self._buckets_blocked)
+        self._flush_cards()
+
+    def _flush_cards(self):
+        self.card_connections.flush()
+        self.card_allowed.flush()
+        self.card_blocked.flush()
+        self.card_bandwidth.flush()

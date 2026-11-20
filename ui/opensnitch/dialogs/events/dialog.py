@@ -1410,7 +1410,7 @@ class StatsDialog(menus.MenusManager, menu_actions.MenuActions, views.ViewsManag
             self._dashboard.update_stats(
                 connections=self._stats.connections,
                 dropped=self._stats.dropped,
-                uptime=uptime_str
+                uptime_seconds=self._stats.uptime
             )
         else:
             self.uptimeLabel.setText("")

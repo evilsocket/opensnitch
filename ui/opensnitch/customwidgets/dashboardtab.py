@@ -748,7 +748,7 @@ class DashboardTab(QtWidgets.QWidget):
 
         self._refresh_timer = QtCore.QTimer(self)
         self._refresh_timer.timeout.connect(self.refresh)
-        self._refresh_timer.setInterval(5000)
+        self._refresh_timer.setInterval(10000)
 
     def showEvent(self, event):
         super().showEvent(event)
@@ -781,9 +781,10 @@ class DashboardTab(QtWidgets.QWidget):
         return rows
 
     def _update_timeline(self):
+        cutoff = (datetime.datetime.now() - datetime.timedelta(hours=24)).strftime("%Y-%m-%d %H")
         rows = self._query(
             "SELECT substr(time, 1, 13) as hour, action, COUNT(*) "
-            "FROM connections GROUP BY hour, action ORDER BY hour"
+            "FROM connections WHERE time >= '{}' GROUP BY hour, action ORDER BY hour".format(cutoff)
         )
         hours = {}
         for hour, action, count in rows:
